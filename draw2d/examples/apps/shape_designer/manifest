@@ -1,0 +1,21 @@
+#appname:ShapeDesigner
+#appid:de.draw2d.designer
+#publisher:Andreas Herz
+#image:icon.png
+#url:http://draw2d.org
+#guid:b50fc3a5-3484-4871-9437-f5a7860c9c03
+#desc:Shape designer for the Draw2D HTML5 javascript lib
+#type:desktop
+runtime:1.3.1-beta
+app:1.3.1-beta
+codec:1.3.1-beta
+database:1.3.1-beta
+filesystem:1.3.1-beta
+media:1.3.1-beta
+monkey:1.3.1-beta
+network:1.3.1-beta
+platform:1.3.1-beta
+process:1.3.1-beta
+ui:1.3.1-beta
+worker:1.3.1-beta
+php:1.3.1-beta

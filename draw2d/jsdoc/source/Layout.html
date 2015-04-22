@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='draw2d-shape-layout-Layout'>/**
+</span> * @class draw2d.shape.layout.Layout
+ * 
+ * A base class for positioning child figures and determining the ideal size for 
+ * a figure with children. 
+ * 
+ *     
+ * @author Andreas Herz
+ * @extends draw2d.shape.basic.Rectangle
+ */
+draw2d.shape.layout.Layout= draw2d.shape.basic.Rectangle.extend({
+
+	NAME : &quot;draw2d.shape.layout.Layout&quot;,
+
+<span id='draw2d-shape-layout-Layout-method-constructor'>    /**
+</span>     * @constructor
+     * Create a new instance
+     * 
+     * @param {Object} [attr] the configuration of the shape
+     */
+    init: function(attr, setter, getter )
+    {
+        this._super($.extend({bgColor:null, radius:0, stroke:0},attr), setter, getter);
+         
+        var _this = this;
+        this.resizeListener = function(figure)
+        {
+            // propagate the event to the parent or other listener if existing
+            //
+            if(_this.getParent() instanceof draw2d.shape.layout.Layout){
+                _this.fireEvent(&quot;resize&quot;);
+            }
+            // or we are the parent and must consume it self
+            else {
+                _this.setDimension(1,1);
+            }
+        };
+        
+        this.installEditPolicy(new draw2d.policy.figure.AntSelectionFeedbackPolicy());
+    },
+    
+<span id='draw2d-shape-layout-Layout-method-add'>    /**
+</span>     * @inheritdoc
+     */
+    add : function(child, locator, index)
+    {
+       var r=this._super(child, locator, index);
+       child.on(&quot;resize&quot;,this.resizeListener);
+       child.on(&quot;change:visibility&quot;,this.resizeListener);
+       this.setDimension(1,1);
+      
+       return r;
+    },
+
+<span id='draw2d-shape-layout-Layout-method-remove'>    /**
+</span>     * @inheritdoc
+     */
+    remove : function(child)
+    {
+       var r= this._super(child);
+       child.off(this.resizeListener);
+       this.setDimension(1,1);
+       
+       return r;
+    },
+
+
+<span id='draw2d-shape-layout-Layout-method-setRotationAngle'>    /**
+</span>     * @inheritdoc
+     */
+    setRotationAngle: function(angle)
+    {
+    	// ignore them for the layout elements
+        // Layout's can't rotate
+    }
+    
+});
+
+
+
+</pre>
+</body>
+</html>

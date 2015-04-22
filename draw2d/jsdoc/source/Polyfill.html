@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">// Production steps of ECMA-262, Edition 5, 15.4.4.21
+// Reference: http://es5.github.io/#x15.4.4.21
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce#Browser_compatibility
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function(callback /*, initialValue*/) {
+    'use strict';
+    if (this == null) {
+      throw new TypeError('Array.prototype.reduce called on null or undefined');
+    }
+    if (typeof callback !== 'function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+    var t = Object(this), len = t.length &gt;&gt;&gt; 0, k = 0, value;
+    if (arguments.length == 2) {
+      value = arguments[1];
+    } else {
+      while (k &lt; len &amp;&amp; ! k in t) {
+        k++; 
+      }
+      if (k &gt;= len) {
+        throw new TypeError('Reduce of empty array with no initial value');
+      }
+      value = t[k++];
+    }
+    for (; k &lt; len; k++) {
+      if (k in t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    return value;
+  };
+}</pre>
+</body>
+</html>

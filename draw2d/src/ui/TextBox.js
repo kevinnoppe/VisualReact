@@ -2,31 +2,12 @@
  *   Library is under GPL License (GPL)
  *   Copyright (c) 2012 Andreas Herz
  ****************************************//**
- * @class draw2d.ui.LabelInplaceEditor
- * 
- * Inplace editor for draw2d.shape.base.Label 
- * 
- *     @example preview small frame
- *     
- *     var label =  new draw2d.shape.basic.Label({text:"Double Click on me"});
- *     
- *     label.installEditor(new draw2d.ui.LabelInplaceEditor({
- *        // called after the value has been set to the LabelFigure
- *        onCommit: $.proxy(function(value){
- *            alert("new value set to:"+value);
- *        },this),
- *        // called if the user abort the operation
- *        onCancel: function(){
- *        }
- *     }));
- *     
- *     canvas.add(label,50,10);
- *     
- * @author Andreas Herz
+ * @class draw2d.ui.TextInput
+ * @author Kevin Noppe
  * @extends draw2d.ui.LabelEditor
 */
 
-draw2d.ui.TextInput =  draw2d.ui.LabelEditor.extend({
+draw2d.ui.TextBox =  draw2d.ui.LabelEditor.extend({
     
     /**
      * @constructor
@@ -41,18 +22,18 @@ draw2d.ui.TextInput =  draw2d.ui.LabelEditor.extend({
     
     /**
      * @method
-     * Trigger the edit of the label text.
+     * Trigger the creation of the text input box.
      * 
-     * @param {draw2d.shape.basic.Label} label the label to edit
+     * @param {draw2d.shape.frp.KeyboardInput} keyboardInput The keyboardInput object
      */
-    start: function(keyboardInput){
+    start: function (keyboardInput) {
         this.keyboardInput = keyboardInput;
 
-        this.commitCallback = $.proxy(this.commit,this);
+        this.closeCallback = $.proxy(this.stop,this);
         
         // commit the editor if the user clicks anywhere in the document
         //
-        $("body").bind("click",this.commitCallback);
+        $("body").bind("click",this.closeCallback);
       
         // append the input field to the document and register 
         // the ENTER and ESC key to commit /cancel the operation
@@ -67,17 +48,14 @@ draw2d.ui.TextInput =  draw2d.ui.LabelEditor.extend({
         
         this.html.bind("keyup",$.proxy(function(e){
             switch (e.which) {
-            case 13:
-                 this.commit();
-                 break;
             case 27:
-                 this.cancel();
+                 this.stop();
                  break;
             }
             this.keyboardInput.keyUp(e);
          },this));
         
-        this.html.bind("blur", this.commitCallback);
+        this.html.bind("blur", this.closeCallback);
          
          // avoid commit of the operation if we click inside the editor
          //
@@ -110,35 +88,16 @@ draw2d.ui.TextInput =  draw2d.ui.LabelEditor.extend({
     
     /**
      * @method
-     * Transfer the data from the editor into the label.<br>
+     * Close the input textbox and remove all references.<br>
      * Remove the editor.<br>
      * @private
      */
-    commit: function(){
-        this.html.unbind("blur",this.commitCallback);
-        $("body").unbind("click",this.commitCallback);
-        //var label = this.html.val();
-        //this.label.setText(label);
+    stop: function(){
+        this.html.unbind("blur",this.closeCallback);
+        $("body").unbind("click",this.closeCallback);
         this.html.fadeOut($.proxy(function(){
             this.html.remove();
             this.html = null;
-            //this.listener.onCommit(this.label.getText());
-        },this));
-    },
-    
-    /**
-     * @method
-     * Transfer the data from the editor into the label.<br>
-     * Remove the editor.<br>
-     * @private
-     */
-    cancel: function(){
-        this.html.unbind("blur",this.commitCallback);
-        $("body").unbind("click",this.commitCallback);
-        this.html.fadeOut($.proxy(function(){
-            this.html.remove();
-            this.html = null;
-            //this.listener.onCancel();
         },this));
         
     }

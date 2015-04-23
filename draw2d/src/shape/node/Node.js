@@ -85,7 +85,8 @@ draw2d.shape.node.Node = draw2d.Figure.extend({
      */
     onDoubleClick:function()
     {
-        this.canvas.getCommandStack().execute(new draw2d.command.CommandRotate(this, (this.getRotationAngle()+90)%360));
+        // The double click event no longer causes a rotation of a Node object.
+        //this.canvas.getCommandStack().execute(new draw2d.command.CommandRotate(this, (this.getRotationAngle()+90)%360));
     },
     
     /**

@@ -40,10 +40,6 @@ draw2d.shape.frp.Input = draw2d.shape.basic.Trapezoid.extend({
         this.bgColor = new draw2d.util.Color("#f3f3f3");
         this.lighterBgColor = this.bgColor.lighter(0.2).hash();
         this.darkerBgColor = this.bgColor.darker(0.2).hash();
-
-        // Create and output port that can be used to connect the element with other reactive elements.
-        this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
-        
     },
 
     getReactiveFunction: function () {

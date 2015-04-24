@@ -20,7 +20,7 @@ draw2d.shape.frp.Input = draw2d.shape.basic.Trapezoid.extend({
      * 
      * @param {Object} [attr] the configuration of the shape
      */
-    init: function(attr, setter, getter )
+    init: function(attr, setter, getter)
     {
         // shortcut for some callback methods to avoid $.proxy wrapper
         var _this = this;

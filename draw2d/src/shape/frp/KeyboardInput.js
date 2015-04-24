@@ -13,17 +13,17 @@ draw2d.shape.frp.KeyboardInput = draw2d.shape.frp.Input.extend({
      * 
      * @param {Object} [attr] the configuration of the shape
      */
-    init: function(attr, setter, getter )
+    init: function(attr, setter, getter)
     {
         // shortcut for some callback methods to avoid $.proxy wrapper
         var _this = this;
 
-        this._super();
+        this._super(attr, setter, getter);
 
         this.vert = new draw2d.shape.layout.VerticalLayout();
 
         this.typeLabel = new draw2d.shape.basic.Label({
-            text: "Double click to enter keyboard events",
+            text: "Double click to enter \n keyboard events",
             color: this.darkerBgColor,
             bgColor: null
         });
@@ -32,7 +32,7 @@ draw2d.shape.frp.KeyboardInput = draw2d.shape.frp.Input.extend({
 
         this.add(this.vert, new draw2d.layout.locator.CenterLocator());
 
-        this.textInput = new draw2d.ui.TextInput();
+        this.textInput = new draw2d.ui.TextBox();
 
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
     },
@@ -47,33 +47,10 @@ draw2d.shape.frp.KeyboardInput = draw2d.shape.frp.Input.extend({
      * Function called when the keyUp event has been received by the TextInput
      * object linked to this input element.
      * 
-     * @param {
+     * @param {Event} e The event triggered byt the click
      */
-    keyUp: function(e) {
+    keyUp: function (e) {
+        // This makes sure that the event-based click is translated to a reactive click event.
         this.subject.onNext(e.key);
-    },
-
-    /**
-      * @method
-      * Set the text to show if the state shape
-      * 
-      * @param {String} text
-      */
-    setLabel: function (text) {
-        this.typeLabel.setText(text);
-        return this;
-    },
-
-    getOutputPort: function () {
-        return this.outputPort;
-    },
-
-    getReactiveFunction: function () {
-        return this.subject.asObservable();
-    },
-
-    removeReactiveInput: function() {
-        // No reactive input so do nothing.
-    }
-       
+    }       
 });

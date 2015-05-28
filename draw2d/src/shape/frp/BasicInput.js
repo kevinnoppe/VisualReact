@@ -29,10 +29,8 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
         });
         this.vert.add(this.typeLabel);
 
-        this.reactiveFunction = "(Rx.Observable.timer(1000, 1000))";// +
-        //"map(function (x) {" +
-        //    "return Math.ceil(Math.random() * 5);" +
-        //"});)";
+        this.reactiveFunction = null;
+        this.setRxFunction("Rx.Observable.timer(1000, 1000)");
 
         this.RxFunction = new draw2d.shape.basic.Label({
             text: this.reactiveFunction,
@@ -49,6 +47,8 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
         this.add(this.vert, new draw2d.layout.locator.CenterLocator());
 
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
+
+        this.inputNode = new InputNode(this).initFromFunction(this.reactiveFunction);
         
     },
 
@@ -60,7 +60,8 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
       */
     setRxFunction: function (rxfunction) {
         this.reactiveFunction = rxfunction;
-        return this;
+        this.subject = (eval(this.reactiveFunction)).asObservable().share();
+        return this.reactiveFunction;
     },
 
     /**
@@ -69,9 +70,9 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
      * Overwrite the getReactiveFunction of Input because now the function needs
      * to be evaluated before returning.
      */
-    getReactiveFunction: function () {
-        this.subject = eval(this.reactiveFunction);
-        return this.subject.asObservable();
+    getReactiveOutput: function (target) {
+        return this.inputNode.getReactiveOutput(target);
+        //return this.subject;
     }
        
 });

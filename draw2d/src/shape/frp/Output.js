@@ -37,6 +37,11 @@ draw2d.shape.frp.Output = draw2d.shape.basic.Rectangle.extend({
 
         this.inputPort = this.createPort("input", new draw2d.layout.locator.TopLocator());
 
+        // Change the standard selection policy, it has an annoying tendency to resize
+        // the nodes instead of connecting them.
+        this.installEditPolicy(
+            new draw2d.policy.figure.GlowSelectionFeedbackPolicy());
+
     },
 
     setLabel: function (text) {

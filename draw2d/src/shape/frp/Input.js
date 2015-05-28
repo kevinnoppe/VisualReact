@@ -34,20 +34,38 @@ draw2d.shape.frp.Input = draw2d.shape.basic.Trapezoid.extend({
             height: 100
         }, attr), setter, getter);
 
-        // The Rx Subject that is created that will send out the reactive input events.
+        // The Rx Subject that is created that will send out the reactive 
+        // input events.
         this.subject = new Rx.Subject();
 
         this.bgColor = new draw2d.util.Color("#f3f3f3");
         this.lighterBgColor = this.bgColor.lighter(0.2).hash();
         this.darkerBgColor = this.bgColor.darker(0.2).hash();
+
+        // Change the standard selection policy, it has an annoying tendency to resize
+        // the nodes instead of connecting them.
+        this.installEditPolicy(
+            new draw2d.policy.figure.GlowSelectionFeedbackPolicy());
     },
 
-    getReactiveFunction: function () {
-        return this.subject.asObservable();
+    getReactiveOutput: function (target) {
+        // The share is an operator on a observable or a subject that
+        // ensures that only one subscription is shared between all 
+        // subscribers. Standard subscriptions are duplicated but we
+        // don't wan't this since we just want to use the intermediate
+        // state of the stream for visual representation.
+        //return this.outputObservable;
+        //var r = this.subject.asObservable().share();
+        return this.inputNode.getReactiveOutput(target);
     },
 
-    removeReactiveFunction: function() {
+    removeReactiveSubscriber: function (subscriber) {
+        this.inputNode.removeReactiveSubscriber(subscriber);
         // No reactive input so do nothing.
+    },
+
+    getCode: function () {
+        //return this.inputNode.getCode();
     }
        
 });

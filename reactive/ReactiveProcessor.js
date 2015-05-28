@@ -1,6 +1,6 @@
-﻿example.ReactiveProcessor = Class.extend({
+﻿VisualReact.ReactiveProcessor = Class.extend({
 
-    NAME: "example.ReactiveProcessor",
+    NAME: "VisualReact.ReactiveProcessor",
 
     init: function (view) {
         this.view = view;
@@ -19,31 +19,16 @@
         if (event.getDetails() === draw2d.command.CommandStack.POST_EXECUTE) {
             switch (event.getCommand().getLabel()) {
                 case draw2d.Configuration.i18n.command.addShape:
-                        //$(document).keyup(function(x) {
-                        //     alert(x);
-                        //});
-                        //alert("Command add!");
-                        //var o = Rx.Observable.timer(3000, 1000)
-                        //    .take(2)
-                        //    .map(function (x) {
-                        //        alert("Tick");
-                        //    });
-                        //o.subscribe(function () {
-                        //    // subscribe to the event
-                        //    //alert("subscribed");
-                        //});
-                        //var react = event.getCommand().getFigure().getFunction();
-                        //react.apply(this);
                     break;
                 case draw2d.Configuration.i18n.command.connectPorts:
                     if (event.getCommand() instanceof draw2d.command.CommandConnect) {
-                        //alert("New connection");
-                        inputFunction = event.command.source.parent.getReactiveFunction();
+                        this.connect(
+                            event.getCommand().getSource().getParent(),
+                            event.getCommand().getTarget().getParent());
+                        this.createCode();
+                        //inputFunction = event.command.source.parent.getReactiveFunction();
                         //source = event.getCommand().getSource().getParent().getReactiveFunction();
-                        event.getCommand().getTarget().getParent().setReactiveInput(inputFunction);
-                        //source.subscribe(function (x) {
-                        //    alert("Here?");
-                        //});
+                        //event.getCommand().getTarget().getParent().setReactiveInput(inputFunction);
                     }
                     break;
                 case draw2d.Configuration.i18n.command.deleteShape:
@@ -55,21 +40,58 @@
                     //alert(event.getCommand());
                     break;
             }
+            //createCode();
         } else {
             switch (event.getCommand().getLabel()) {
                 case draw2d.Configuration.i18n.command.deleteShape:
                     if (event.getCommand().figure instanceof draw2d.Connection) {
-                        event.getCommand().figure.targetPort.parent.removeReactiveInput();
+                        var connection = event.getCommand().figure;
+                        console.log("Removing connection");
+                        connection.sourcePort.parent.removeReactiveSubscriber(
+                            connection.targetPort.getParent());
+                        connection.targetPort.parent.removeReactiveInput();
                     } else {
                         connections = event.getCommand().figure.getConnections()
                         for (c = 0; c < connections.getSize() ; c++) {
                             conn = connections.get(c);
-                            conn.getSource().parent.removeReactiveInput();
+                            conn.getSource().parent.removeReactiveSubscriber(
+                                conn.getTarget().getParent());
                             conn.getTarget().parent.removeReactiveInput();
                         }
                     }
                     break;
             }
         }
+    },
+
+    connect: function (source, target) {
+        var output = source.getReactiveOutput(target);
+        target.setReactiveInput(output);
+    },
+
+    createCode: function () {
+        var body = "";
+        var script = "";
+        // First get all elements on the canvas.
+        var figures = this.view.getFigures().asArray();
+        for (i = 0; i < figures.length ; i++) {
+            if (figures[i] instanceof draw2d.shape.frp.Input) {
+                [body, script] = figures[i].getCode(body, script);
+            }
+        }
+
+        // Start by making a blank page and two elements that will represent
+        // the actual html code and the javascript code
+        var page = "<HTML> <HEAD> <TITLE>Blank page</TITLE>";
+        page += "</HEAD> <BODY>";
+        page += body;
+        page += "<script src='http://code.jquery.com/jquery-1.9.1.js'></script>";
+        page += "<script src='http://cdnjs.cloudflare.com/ajax/libs/rxjs/2.2.26/rx.all.js'></script>";
+        page += "<script>"
+        page += script;
+        page += "</script>";
+        page += "</BODY> </HTML>";
+        console.log(page);
+        return page;
     }
 });

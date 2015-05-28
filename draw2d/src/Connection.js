@@ -498,6 +498,7 @@ draw2d.Connection = draw2d.shape.basic.PolyLine.extend({
      **/
     setSource:function( port)
     {
+        //alert("connect");
       if(this.sourcePort!==null){
         this.sourcePort.off(this.moveListener);
         this.sourcePort.connections.remove(this);
@@ -510,13 +511,13 @@ draw2d.Connection = draw2d.shape.basic.PolyLine.extend({
       if(this.sourcePort===null){
         return;
       }
-      
+      //TODO Change this to make the connect command work again!
       this.routingRequired = true;
       this.fireSourcePortRouteEvent();
       this.sourcePort.connections.add(this);
       this.sourcePort.on("move",this.moveListener);
       if(this.canvas!==null){
-          this.canvas.fireEvent("connect", {"port":this.sourcePort, "connection":this});
+          this.canvas.fireEvent("connect", { "port": this.sourcePort, "connection": this });
           this.sourcePort.fireEvent("connect", this);
           this.sourcePort.onConnect(this); 
       }

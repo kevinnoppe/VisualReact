@@ -48,6 +48,7 @@ draw2d.command.CommandConnect = draw2d.command.Command.extend({
     {
         var optionalCallback = $.proxy(function(conn){
             this.connection = conn;
+            //this.connection.canvas = this.canvas;
             this.connection.setSource(this.source);
             this.connection.setTarget(this.target);
             this.canvas.add(this.connection);

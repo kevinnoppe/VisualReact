@@ -1,5 +1,7 @@
 
-example.Toolbar = Class.extend({
+VisualReact.Toolbar = Class.extend({
+
+    NAME: "VisualReact.Toolbar",
 	
 	init:function(elementId, view){
 		this.html = $("#"+elementId);

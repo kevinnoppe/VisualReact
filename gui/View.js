@@ -1,8 +1,8 @@
 
 
-example.View = draw2d.Canvas.extend({
+VisualReact.View = draw2d.Canvas.extend({
 	
-    //Rx: null,
+    NAME: "VisualReact.View",
 
 	init:function(id){
 		this._super(id);
@@ -11,7 +11,7 @@ example.View = draw2d.Canvas.extend({
 		
 		this.currentDropConnection = null;
 
-		this.clickPolicy = new draw2d.policy.canvas.MouseClickPolicy();
+		//this.clickPolicy = new draw2d.policy.canvas.MouseClickPolicy();
 		//this.installEditPolicy(this.clickPolicy);
 	},
 

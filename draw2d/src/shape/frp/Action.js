@@ -70,8 +70,8 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
         //}
     },
 
-    setReactiveInput: function (observable) {
-        this.actionNode.setReactiveInput(observable);
+    setReactiveInput: function (observableId, observable) {
+        this.actionNode.setReactiveInput(observableId, observable);
         //// Again we use share to defer Rx from creating multiple instances
         //// of the subscription. This way all subscribers use the same
         //// events as if all they were all executed in one action.
@@ -108,19 +108,19 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
 
     //},
 
-    removeReactiveInput: function () {
-        this.actionNode.deleteReactiveInput();
+    removeReactiveInput: function (inputId) {
+        this.actionNode.removeReactiveInput(inputId);
         //this.subscribedFunction.dispose();
     },
 
-    getReactiveOutput: function (target) {
+    getReactiveOutput: function (targetId, target) {
         var o = this.reactiveFunction;
-        return this.actionNode.getReactiveOutput(target);
+        return this.actionNode.getReactiveOutput(targetId, target);
         //return this.reactiveFunction;
     },
 
-    removeReactiveSubscriber: function (subscriber) {
-        this.actionNode.removeReactiveSubscriber(subscriber);
+    removeReactiveSubscriber: function (subscriberId) {
+        this.actionNode.removeReactiveSubscriber(subscriberId);
     },
 
     getCode: function (varName) {

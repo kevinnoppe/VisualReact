@@ -1,11 +1,11 @@
 /**
- * @class draw2d.shape.frp.Map
+ * @class draw2d.shape.frp.Zip
  *
  * @extends draw2d.shape.frp.Action
  */
-draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
+draw2d.shape.frp.Zip = draw2d.shape.frp.Action.extend({
 
-	NAME: "draw2d.shape.frp.Map",
+	NAME: "draw2d.shape.frp.Zip",
 	
     /**
      * @constructor
@@ -20,19 +20,19 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
 
         this._super(attr, setter, getter);
 
-        this.subscriberFunction = "(function (y) { console.log(\"Random: \" + y); })";
-        this.actionFunction = "(function (x) { return Math.ceil(Math.random() * 5); })";
-        // Alternate functions
-        // Random number 1 to 5
-        //(function (x) { return Math.ceil(Math.random() * 5); })
-        // Number larger than ?
-        //(function(x) { if (x > 3) {return x;}})
-        this.action = ReactiveLanguage.map;
+        this.subscribeFunction = "(function (x) { console.log(\"Zipped : \" + x); })";
+        this.actionFunction = "(function () {return arguments.length;})"
+        //this.actionFunction += "for (i = 0; i < arguments.length; i++) {\n";
+        //this.actionFunction += "res += arguments[i] + \", \";} \n";
+        //this.actionFunction += "console.log(\"Zipped: \" + res); \n";
+        //this.actionFunction += "return res;})";
+
+        this.action = ReactiveLanguage.zip;
 
         this.content = new draw2d.shape.layout.VerticalLayout();
 
         this.typeLabel = new draw2d.shape.basic.Label({
-            text: this.subscriberFunction,
+            text: this.subscribeFunction,
             color: this.darkerBgColor,
             bgColor: null
         });
@@ -63,12 +63,11 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
         //this.inputPort.on("connect", function (emitter, connection) {
         //    alert("port connected");
         //});
-        this.inputPort.setMaxFanOut(1);
 
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
         // Create a new ActionNode that takes care of the reactive part.
-        this.actionNode = new ActionNode(this, this.action, this.actionFunction);
-        this.actionNode.setSubscribeFunction(this.subscriberFunction);
+        this.actionNode = new ZipNode(this, this.action, this.actionFunction);
+        this.actionNode.setSubscribeFunction(this.subscribeFunction);
     }
 });

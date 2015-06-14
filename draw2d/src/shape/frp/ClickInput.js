@@ -57,7 +57,7 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
 
     getCode: function (body, script) {
         // Prepare the necessary elements for the code generation
-        var extraScript = this.inputNode.getCode(this.buttonName, 'click');
+        var extraScript = this.inputNode.getCode(this.buttonName, this.eventType);
         var extraBody = "<input type='button' id='" +
             this.buttonName +
             "' value='Test button'></input>";

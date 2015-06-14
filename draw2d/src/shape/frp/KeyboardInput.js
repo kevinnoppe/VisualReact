@@ -20,6 +20,7 @@ draw2d.shape.frp.KeyboardInput = draw2d.shape.frp.Input.extend({
 
         // The name generated for the input box used by the code generation
         this.textInputName = guid();
+        this.textInputElement = null;
         // The type of event that is being listened to
         this.eventType = "'keyup'";
 
@@ -51,12 +52,21 @@ draw2d.shape.frp.KeyboardInput = draw2d.shape.frp.Input.extend({
         //this.inputNode.
 
         // Alternative input box
-        this.$txtReactiveTextInput = jQuery('<input/>', {
-            keyup: function (event) {
-                _this.inputNode.output.onNext(event);
-            }
-        });
-        jQuery('#reactive-html-content').append(this.$txtReactiveTextInput);
+        this.createReactiveDOMElement(this.textInputName);
+    },
+
+    createReactiveDOMElement: function (elementName) {
+        textInputElement =
+            jQuery('<input id="' + elementName + '"/>', {
+                keyup: function (event) {
+                    _this.inputNode.output.onNext(event);
+                }
+            });
+        jQuery('#reactive-html-content').append(textInputElement);
+    },
+
+    deleteReactiveDOMElement: function () {
+        jQuery('#reactive-html-content').removeChild(textInputElement);
     },
     
     getCode: function (body, script) {

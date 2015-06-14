@@ -47,16 +47,25 @@
                     if (event.getCommand().figure instanceof draw2d.Connection) {
                         var connection = event.getCommand().figure;
                         console.log("Removing connection");
-                        connection.sourcePort.parent.removeReactiveSubscriber(
-                            connection.targetPort.getParent());
-                        connection.targetPort.parent.removeReactiveInput();
+                        this.disconnect(
+                            connection.getSource().getParent(),
+                            connection.getTarget().getParent());
+                        //connection.getSource().getParent().removeReactiveSubscriber(
+                        //    connection.getTarget().getParent().getId());
+                        //connection.getTarget().getParent().removeReactiveInput(
+                        //    connection.getSource().getParent().getId());
                     } else {
-                        connections = event.getCommand().figure.getConnections()
+                        var connections = event.getCommand().figure.getConnections()
+                        console.log("Removing figure");
                         for (c = 0; c < connections.getSize() ; c++) {
-                            conn = connections.get(c);
-                            conn.getSource().parent.removeReactiveSubscriber(
+                            var conn = connections.get(c);
+                            this.disconnect(
+                                conn.getSource().getParent(),
                                 conn.getTarget().getParent());
-                            conn.getTarget().parent.removeReactiveInput();
+                            //conn.getSource().parent.removeReactiveSubscriber(
+                            //    conn.getTarget().getParent().getId());
+                            //conn.getTarget().parent.removeReactiveInput(
+                            //    conn.getSource().getParent().getId());
                         }
                     }
                     break;
@@ -65,8 +74,17 @@
     },
 
     connect: function (source, target) {
-        var output = source.getReactiveOutput(target);
-        target.setReactiveInput(output);
+        var sourceId = source.getId();
+        var targetId = target.getId();
+        var output = source.getReactiveOutput(targetId, target);
+        target.setReactiveInput(sourceId, output);
+    },
+
+    disconnect: function (source, target) {
+        var sourceId = source.getId();
+        var targetId = target.getId();
+        source.removeReactiveSubscriber(targetId);
+        target.removeReactiveInput(sourceId);
     },
 
     createCode: function () {
@@ -76,7 +94,9 @@
         var figures = this.view.getFigures().asArray();
         for (i = 0; i < figures.length ; i++) {
             if (figures[i] instanceof draw2d.shape.frp.Input) {
-                [body, script] = figures[i].getCode(body, script);
+                var ar = figures[i].getCode(body, script);
+                body = ar[0];
+                script = ar[1];
             }
         }
 

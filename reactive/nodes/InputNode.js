@@ -1,16 +1,19 @@
 ﻿var InputNode = function (parent) {
+
+    ReactiveNode.call(this, parent);
+
     // The parent node, being the draw2d object coupled with this
     // action node.
-    this.parent = parent;
+    //this.parent = parent;
 
     // The function that defines the subscription to the action result.
     // Currently used to display the result, can change later.
     //TODO Possibly hidden after standard display?
-    this.subscribeFunction = new Function();
+    //this.subscribeFunction = new Function();
 
     // All nodes depending on this node are stored to make sure they
     // can be notified if the output changes.
-    this.dependants = new Array();
+    //this.dependants = new Dictionary();
 
     // The subscription to the result of this action. Stored so it 
     // can be disposed of.
@@ -20,10 +23,17 @@
     // input observable.
     this.inputFunction = null;
 
-    this.output =  Rx.Observable.empty();
+    this.output =  reactiveLanguage.getFunction(ReactiveLanguage.empty)();
 
     return this;
 };
+
+// Set the prototype of this object to be the ReactiveNode parent type.
+InputNode.prototype = Object.create(ReactiveNode.prototype);
+
+// Set the constructor for this type.
+InputNode.prototype.constructor = InputNode;
+
 
 InputNode.prototype.initFromSubject = function (subject) {
     this.setInput(subject);
@@ -60,10 +70,10 @@ InputNode.prototype.setInput = function (observable) {
  * @param newSubscribeFunction The function that is executed after
  * executing the node action on the input.
  */
-InputNode.prototype.setSubscribeFunction = function (newSubscribeFunction) {
-    this.subscribeFunction = newSubscribeFunction;
-    this.updateInput();
-};
+//InputNode.prototype.setSubscribeFunction = function (newSubscribeFunction) {
+//    this.subscribeFunction = newSubscribeFunction;
+//    this.updateInput();
+//};
 
 /**
  * Update the input of this ActionNode. This results in an update of
@@ -82,24 +92,33 @@ InputNode.prototype.updateInput = function () {
  * Notify all dependants that the output has changed.
  */
 InputNode.prototype.updateOutput = function () {
-    var length = this.dependants.length;
-    for (i = 0; i < length; i++) {
-        console.log("huh");
-        this.dependants[i].setInput(this.output);
+    //var length = this.dependants.length;
+    //for (i = 0; i < length; i++) {
+    //    console.log("huh");
+    //    this.dependants[i].setInput(this.output);
+    //}
+    for (key in this.dependants.keys) {
+        var dependant = this.dependants.get(key);
+        dependant.setInput(this.output);
     }
     return this;
 };
 
-InputNode.prototype.getReactiveOutput = function (dependant) {
-    this.dependants.push(dependant);
+InputNode.prototype.getReactiveOutput = function (id, dependant) {
+    this.dependants.add(id, dependant);
+    //this.dependants.push(id, dependant);
     return this.output.asObservable().share();
 };
 
-InputNode.prototype.removeReactiveSubscriber = function (subscriber) {
-    var index = this.dependants.indexOf(subscriber);
-    if (index >= 0) {
-        this.dependants.splice(index, 1);
-    }
+InputNode.prototype.removeReactiveSubscriber = function (subscriberId) {
+    //var index = this.dependants.indexOf(subscriber);
+    //if (index >= 0) {
+    //    this.dependants.splice(index, 1);
+    //}
+    //if (this.dependants.hasOwnProperty(subscriberId)) {
+    //    delete this.dependants[subscriberId];
+    //}
+    this.dependants.remove(subscriberId);
 };
 
 InputNode.prototype.getCode = function (element, event) {
@@ -116,7 +135,7 @@ InputNode.prototype.getCode = function (element, event) {
     // Get the rest of the string from the children.
     //TODO
     if (this.dependants.length === 1) {
-        var action = this.dependants[0].getCode();
+        var action = (this.dependants.values())[0].getCode(varName);
         inputString += "." + action;
     } else {
         // https://jsfiddle.net/4gGgs/201/
@@ -124,7 +143,7 @@ InputNode.prototype.getCode = function (element, event) {
         // to accomodate the multiple children. This way both children can
         // refer to the first variable instead of repeating the entire code.
         inputString += ";";
-        this.dependants.forEach(function (dependant, index) {
+        this.dependants.forEach(function (dependantId, dependant) {
             var newVarName = variableName.getNextName();
             var childAction = "var " + newVarName + " = " + varName + ".";
             var action = dependant.getCode(newVarName);

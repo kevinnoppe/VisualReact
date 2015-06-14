@@ -48,7 +48,7 @@ draw2d.shape.frp.Input = draw2d.shape.basic.Trapezoid.extend({
             new draw2d.policy.figure.GlowSelectionFeedbackPolicy());
     },
 
-    getReactiveOutput: function (target) {
+    getReactiveOutput: function (targetId, target) {
         // The share is an operator on a observable or a subject that
         // ensures that only one subscription is shared between all 
         // subscribers. Standard subscriptions are duplicated but we
@@ -56,7 +56,7 @@ draw2d.shape.frp.Input = draw2d.shape.basic.Trapezoid.extend({
         // state of the stream for visual representation.
         //return this.outputObservable;
         //var r = this.subject.asObservable().share();
-        return this.inputNode.getReactiveOutput(target);
+        return this.inputNode.getReactiveOutput(targetId, target);
     },
 
     removeReactiveSubscriber: function (subscriber) {

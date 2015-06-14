@@ -1,7 +1,6 @@
-﻿var ActionNode = function(parent, actionType, actionFunction){
-    // The parent node, being the draw2d object coupled with this
-    // action node.
-    this.parent = parent;
+﻿var ActionNode = function (parent, actionType, actionFunction) {
+
+    ReactiveNode.call(this, parent);
 
     // The type of action, this is coupled to the reactive language 
     // being used. Currently this is a referral to a class that then
@@ -13,87 +12,104 @@
     // input observable.
     this.actionFunction = actionFunction;
 
-    // The function that defines the subscription to the action result.
-    // Currently used to display the result, can change later.
-    //TODO Possibly hidden after standard display?
-    this.subscribeFunction = null;
-
     // The input stream that emits events from the input node. To
     // start this is an empty stream until something changes.
-    //TODO Make this language independant
-    this.input = Rx.Observable.empty();
+    //TODO Make this completely language independant
+    this.emptyStream = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
+    this.inputs = new Dictionary();
 
     // The output stream that emits events to the other nodes. To
     // start this is an empty stream until something changes.
-    this.output = Rx.Observable.empty();
+    this.output = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
 
-    // All nodes depending on this node are stored to make sure they
-    // can be notified if the output changes.
-    this.dependants = new Array();
-    
     // The subscription to the result of this action. Stored so it 
     // can be disposed of.
     this.subscription = null;
+};
 
-    //return this;
-}
+ActionNode.prototype = Object.create(ReactiveNode.prototype);
+ActionNode.prototype.constructor = ActionNode;
 
-    /**
-     * Set the actual function that is executed by the action function
-     * when there is a new input.
-     * 
-     * @param newAction The function that should be executed by the 
-     * respective action.
-     */
-ActionNode.prototype.setActionFunction = function(newAction) {
+/**
+ * Set the actual function that is executed by the action function
+ * when there is a new input.
+ * 
+ * @param newAction The function that should be executed by the 
+ * respective action.
+ */
+ActionNode.prototype.setActionFunction = function (newAction) {
     this.actionFunction = newAction;
     this.updateInput();
 };
 
-    /**
-     * Set the function that is executed when subscribing to the output
-     * of this ActionNode.
-     * 
-     * @param newSubscribeFunction The function that is executed after
-     * executing the node action on the input.
-     */
-ActionNode.prototype.setSubscribeFunction = function(newSubscribeFunction) {
-    this.subscribeFunction = newSubscribeFunction;
+/**
+ * Set the input for this action node.
+ * 
+ * @param input The input is an Observable that is the source
+ * of data for the action node.
+ */
+//ActionNode.prototype.setReactiveInput = function (input) {
+//    // Store the new input and apply the corresponding action to it.
+//    this.input = input;
+//    this.updateInput();
+//};
+
+ActionNode.prototype.setReactiveInput = function (inputId, input) {
+    this.inputs.add(inputId, input);
     this.updateInput();
 };
 
-    /**
-     * Set the input for this action node.
-     * 
-     * @param input The input is an Observable that is the source
-     * of data for the action node.
-     */
-ActionNode.prototype.setReactiveInput = function (input) {
-    // Store the new input and apply the corresponding action to it.
-    this.input = input;
-    this.updateInput();
-};
-
-    /**
-     * Remote the input for the action node. Also resets the output.
-     */
-ActionNode.prototype.deleteReactiveInput = function() {
-    this.input = null;
+/**
+ * Remote the input for the action node. Also resets the output.
+ */
+ActionNode.prototype.removeReactiveInput = function (inputId) {
+    this.inputs.remove(inputId);
+    //if (Object.keys(this.inputList) === 0) {
+    //    this.isInputEmpty = true;
+    //}
+    //var idx = this.inputList.indexOf(input);
+    //if (idx !== -1) {
+    //    this.inputList.splice(idx, 1);
+    //}
+    // If the inputList is now empty, reset to actual empty input
+    //if (this.inputList.length === 0) { this.inputList.push(this.emptyInput) };
+    //this.input = null;
     if (this.subscription !== null) {
         this.subscription.dispose();
         this.subscription = null;
     }
-    this.output = Rx.Observable.empty();
-    this.updateOutput();
+    // Since the input has changed, there needs to be an update of 
+    // the internal working of the action.
+    this.updateInput();
+    //this.output = this.emptyStream;
+    //this.updateOutput();
 };
 
-    /**
-     * Update the input of this ActionNode. This results in an update of
-     * the respective subsciptions and output.
-     */
+ActionNode.prototype.getNodeExecutionArguments = function() {
+    return [eval(this.actionFunction)];
+};
+
+/**
+ * Update the input of this ActionNode. This results in an update of
+ * the respective subsciptions and output.
+ */
 ActionNode.prototype.updateInput = function () {
-    var action = reactiveLanguage.getFunction(this.actionType);
-    this.output = action.call(this.input, eval(this.actionFunction)).share();
+    var nodeExecution = reactiveLanguage.getNodeExecution(this.actionType);
+    this.output = nodeExecution(
+        this.inputs.isEmpty() ? [this.emptyStream] : this.inputs.values(),
+        this.getNodeExecutionArguments()).share();
+    //var action = reactiveLanguage.getFunction(this.actionType);
+    //var argumentsArray = this.inputList;
+    //argumentsArray.push(eval(this.actionFunction));
+    //var arg = eval(this.actionFunction);
+    //var first = argumentsArray.shift();
+    //this.output = action.apply(first, argumentsArray);
+    //if (this.inputList.length === 1) {
+    //    this.output = action.call(first, eval(this.actionFunction)).share();
+    //}
+    //else {
+    //    // Doe iets anders want er zijn meerdere input streams
+    //}
     // Subscribe to our own output so it can be displayed and used.
     // If there was a previous subscription, dispose of it so it can
     // be garbage collected.
@@ -105,26 +121,38 @@ ActionNode.prototype.updateInput = function () {
     this.updateOutput();
 };
 
-    /**
-     * Notify all dependants that the output has changed.
-     */
+/**
+ * Notify all dependants that the output has changed.
+ */
 ActionNode.prototype.updateOutput = function () {
-    var length = this.dependants.length;
-    for (i = 0; i < length; i++) {
-        this.dependants[i].setReactiveInput(this.output);
-    }
+    //var length = this.dependants.length;
+    //for (i = 0; i < length; i++) {
+    //    this.dependants[i].setReactiveInput(this.output);
+    //}
+    this.dependants.each(function (key, val) {
+        val.setReactiveInput(this.output);
+    });
+    //for (key in this.dependants) {
+    //    var dependant = this.dependants.get(key);
+    //    dependant.setReactiveInput(this.output);
+    //}
 };
 
-ActionNode.prototype.getReactiveOutput = function (dependant) {
-    this.dependants.push(dependant);
+ActionNode.prototype.getReactiveOutput = function (id, dependant) {
+    this.dependants.add(id, dependant);
+    //this.dependants.push(dependant);
     return this.output.asObservable().share();
 };
 
-ActionNode.prototype.removeReactiveSubscriber = function (subscriber) {
-    var index = this.dependants.indexOf(subscriber);
-    if (index >= 0) {
-        this.dependants.splice(index, 1);
-    }
+ActionNode.prototype.removeReactiveSubscriber = function (subscriberId) {
+    //var index = this.dependants.indexOf(subscriber);
+    //if (index >= 0) {
+    //    this.dependants.splice(index, 1);
+    //}
+    //if (this.dependants.hasOwnProperty(subscriberId)) {
+    //    delete this.dependants[subscriberId];
+    //}
+    this.dependants.remove(subscriberId)
 };
 
 ActionNode.prototype.getCode = function (varName) {
@@ -154,12 +182,12 @@ ActionNode.prototype.getCode = function (varName) {
 
     if (this.dependants.length === 1) {
         var actionCode = reactiveLanguage.getFunctionCall(this.actionType);
-        var childAction = this.dependants[0].getCode();
-        return "." + actionCode + this.actionFunction;
+        var childAction = (this.dependants.values())[0].getCode(varName);
+        return actionCode + this.actionFunction + "." + childAction;
     }
     else {
         actionString += ";";
-        this.dependants.forEach(function (dependantindex) {
+        this.dependants.forEach(function (dependantindex, dependant) {
             var newVarName = variableName.getNextName();
             var childAction = "var " + newVarName + " = " + varName + ".";
             var action = dependant.getCode(newVarName);

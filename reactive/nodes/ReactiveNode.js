@@ -32,3 +32,37 @@ ReactiveNode.prototype.setSubscribeFunction = function (newSubscribeFunction) {
     this.subscribeFunction = newSubscribeFunction;
     this.updateInput();
 };
+
+ReactiveNode.prototype.pause = function () {
+
+}
+
+//ReactiveNode.prototype.getCode = function (inputNodeList) {
+//    // We get the list of input nodes, of which there might me several.
+//    // A breadth-first search is executed with some extra's:
+//    // First of all, the nodes that rely on multiple other nodes
+//    // are deferred to place until the last dependable has been created.
+//    // This way, there should be less accidental glitches introduced to
+//    // the generated code.
+
+//    var top = [];
+//    while (inputNodeList.length !== 0) {
+//        var cur = inputNodeList.shift();
+//        top.push(cur);
+
+//    }
+
+//    //breadth first search on all input elements
+//    var queue = new Queue();
+//    for (node in inputNodeList) {
+//        queue.enqueue(node);
+//    }
+//    while (!queue.isEmpty) {
+//        var node = queue.dequeue();
+//        // Get the code of that node
+//        node.getCode();
+//        for (dep in node.getDependants()) {
+
+//        }
+//    }
+//};

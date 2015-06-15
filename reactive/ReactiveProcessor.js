@@ -7,7 +7,8 @@
         //this.Rx = reactiveExtentions;
         // Register this class as a listener for the CommandStack.
         // This way we can update the reactive part of the application
-
+        this.reactiveGraph = new reactiveGraph();
+        this.pauser = Rx.Subject();
         view.commandStack.addEventListener(this);
     },
 
@@ -25,6 +26,10 @@
                         this.connect(
                             event.getCommand().getSource().getParent(),
                             event.getCommand().getTarget().getParent());
+                        this.reactiveGraph.addEdge(
+                            event.getCommand().getSource().getParent().getId(),
+                            event.getCommand().getTarget().getParent().getId());
+                        console.log(this.reactiveGraph.getTopologicalSort());
                         this.createCode();
                         //inputFunction = event.command.source.parent.getReactiveFunction();
                         //source = event.getCommand().getSource().getParent().getReactiveFunction();

@@ -25,6 +25,10 @@
     // The subscription to the result of this action. Stored so it 
     // can be disposed of.
     this.subscription = null;
+
+    // The pauser that will sends event when te application is paused
+    // or resumed.
+    this.paused = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
 };
 
 ActionNode.prototype = Object.create(ReactiveNode.prototype);
@@ -54,8 +58,9 @@ ActionNode.prototype.setActionFunction = function (newAction) {
 //    this.updateInput();
 //};
 
-ActionNode.prototype.setReactiveInput = function (inputId, input) {
+ActionNode.prototype.setReactiveInput = function (inputId, input, pauser) {
     this.inputs.add(inputId, input);
+    this.pauser = pauser;
     this.updateInput();
 };
 
@@ -97,7 +102,7 @@ ActionNode.prototype.updateInput = function () {
     var nodeExecution = reactiveLanguage.getNodeExecution(this.actionType);
     this.output = nodeExecution(
         this.inputs.isEmpty() ? [this.emptyStream] : this.inputs.values(),
-        this.getNodeExecutionArguments()).share();
+        this.getNodeExecutionArguments()).pausable(this.pauser).share();
     //var action = reactiveLanguage.getFunction(this.actionType);
     //var argumentsArray = this.inputList;
     //argumentsArray.push(eval(this.actionFunction));

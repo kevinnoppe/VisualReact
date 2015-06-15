@@ -8,7 +8,7 @@
         // Register this class as a listener for the CommandStack.
         // This way we can update the reactive part of the application
         this.reactiveGraph = new reactiveGraph();
-        this.pauser = Rx.Subject();
+        this.pauser = new Rx.Subject();
         view.commandStack.addEventListener(this);
     },
 
@@ -82,7 +82,7 @@
         var sourceId = source.getId();
         var targetId = target.getId();
         var output = source.getReactiveOutput(targetId, target);
-        target.setReactiveInput(sourceId, output);
+        target.setReactiveInput(sourceId, output, this.pauser);
     },
 
     disconnect: function (source, target) {
@@ -118,5 +118,10 @@
         page += "</BODY> </HTML>";
         console.log(page);
         return page;
+    },
+    
+    // Send the pause or resume command to the streams.
+    pause: function (p) {
+        this.pauser.onNext(p);
     }
 });

@@ -493,10 +493,10 @@
 <body id="container">
     <div id="content">
         <div id="toolbar">
-            <!--<p style="float:right" id="pClock"> Clock? </p>-->
-            <!--<div id="generator">
-                <input type="button" title="Generate code" onclick="generate();" value="Generate" />
-            </div>-->
+            <!--< style="float:right" id="pClock"> Clock? </p>-->
+            <div style="float:right" id="pauser">
+                <input type="button" title="Pause" onclick="pause();" value="Pause" />
+            </div>
         </div>
         <div id="canvas" class="" style="width:1500px; height:1500px;-webkit-tap-highlight-color: rgba(0,0,0,0); "></div>
     </div>
@@ -519,6 +519,12 @@
         </div>
     </div>
     <script type="text/javascript">
+
+        var paused = false;
+        function pause() {
+            this.app.reactiveProcessor.pause(!paused);
+            paused = !paused;
+        }
 
         //var source = Rx.Observable.from([1,2,3,4,5])
         //.map(function (x) {

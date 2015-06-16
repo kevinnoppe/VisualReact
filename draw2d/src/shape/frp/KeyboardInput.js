@@ -20,7 +20,7 @@ draw2d.shape.frp.KeyboardInput = draw2d.shape.frp.Input.extend({
 
         // The name generated for the input box used by the code generation
         this.textInputName = guid();
-        this.textInputElement = null;
+
         // The type of event that is being listened to
         this.eventType = "'keyup'";
 
@@ -45,28 +45,26 @@ draw2d.shape.frp.KeyboardInput = draw2d.shape.frp.Input.extend({
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
         this.inputNode = new InputNode(this).initFromSubject(this.subject);
-        //this.inputNode.setSubscribeFunction(function (x) {
-        //    console.log("KeyboardInput");
-        //});
-
-        //this.inputNode.
 
         // Alternative input box
-        this.createReactiveDOMElement(this.textInputName);
+        this.createTextInput();
     },
 
-    createReactiveDOMElement: function (elementName) {
-        textInputElement =
-            jQuery('<input id="' + elementName + '"/>', {
+    createTextInput: function () {
+        var $textInputElement =
+            jQuery('<input id="' + this.textInputName + '"/>', {
                 keyup: function (event) {
                     _this.inputNode.output.onNext(event);
                 }
             });
-        jQuery('#reactive-html-content').append(textInputElement);
+        jQuery('#reactive-html-content').append($textInputElement);
     },
 
-    deleteReactiveDOMElement: function () {
-        jQuery('#reactive-html-content').removeChild(textInputElement);
+    /**
+     * Code that needs to be executed when removing the node.
+     */
+    remove: function () {
+        jQuery('#' + this.textInputName).remove();
     },
     
     getCode: function (body, script) {

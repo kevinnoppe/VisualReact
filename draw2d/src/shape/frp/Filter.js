@@ -52,13 +52,14 @@ draw2d.shape.frp.Filter = draw2d.shape.frp.Action.extend({
                 }
             }));
         this.content.add(this.actionLabel, new draw2d.layout.locator.CenterLocator(this));
-
         this.add(this.content, new draw2d.layout.locator.CenterLocator());
 
+        // Create the input and output ports.
         this.inputPort = this.createPort("input", new draw2d.layout.locator.TopLocator());
         this.inputPort.setMaxFanOut(1);
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
+        // Create the actionnode coupled with this object.
         this.actionNode = new ActionNode(this, this.action, this.actionFunction);
         this.actionNode.setSubscribeFunction(this.subscriberFunction);
     }

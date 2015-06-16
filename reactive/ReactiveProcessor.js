@@ -55,22 +55,15 @@
                         this.disconnect(
                             connection.getSource().getParent(),
                             connection.getTarget().getParent());
-                        //connection.getSource().getParent().removeReactiveSubscriber(
-                        //    connection.getTarget().getParent().getId());
-                        //connection.getTarget().getParent().removeReactiveInput(
-                        //    connection.getSource().getParent().getId());
                     } else {
                         var connections = event.getCommand().figure.getConnections()
                         console.log("Removing figure");
+                        event.getCommand().figure.remove();
                         for (c = 0; c < connections.getSize() ; c++) {
                             var conn = connections.get(c);
                             this.disconnect(
                                 conn.getSource().getParent(),
                                 conn.getTarget().getParent());
-                            //conn.getSource().parent.removeReactiveSubscriber(
-                            //    conn.getTarget().getParent().getId());
-                            //conn.getTarget().parent.removeReactiveInput(
-                            //    conn.getSource().getParent().getId());
                         }
                     }
                     break;

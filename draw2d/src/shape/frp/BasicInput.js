@@ -72,7 +72,6 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
      */
     getReactiveOutput: function (target) {
         return this.inputNode.getReactiveOutput(target);
-        //return this.subject;
     }
        
 });

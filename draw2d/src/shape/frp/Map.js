@@ -59,12 +59,9 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
 
         this.add(this.content, new draw2d.layout.locator.CenterLocator());
 
+        // Create input and output ports.
         this.inputPort = this.createPort("input", new draw2d.layout.locator.TopLocator());
-        //this.inputPort.on("connect", function (emitter, connection) {
-        //    alert("port connected");
-        //});
         this.inputPort.setMaxFanOut(1);
-
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
         // Create a new ActionNode that takes care of the reactive part.

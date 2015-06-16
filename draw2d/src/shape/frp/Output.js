@@ -51,6 +51,12 @@ draw2d.shape.frp.Output = draw2d.shape.basic.Rectangle.extend({
 
     getOutputPort: function () {
         return this.outputPort;
-    }
+    },
+
+    /**
+     * Code that needs to be executed when removing the node.
+     * Should be implemented by the necessary nodes.
+     */
+    remove: function () {}
 
 });

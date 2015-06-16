@@ -88,27 +88,6 @@ VisualReact.Application = Class.extend(
                 paneSelector: "#reactive-html-code"
             }
         });
-
-        //var inRed = new draw2d.shape.frp.Input({ x: 15, y: 15 });
-        //inRed.setLabel("RedClickStream");
-        //inRed.setType("Rx.Observable.fromEvent($red, 'click')");
-        //this.view.add(inRed);
-        //var inBlue = new draw2d.shape.frp.Input({ x: 100, y: 15 });
-        //inBlue.setLabel("BlueClickStream");
-        //this.view.add(inBlue);
-        //var inYellow = new draw2d.shape.frp.Input({ x: 200, y: 15 });
-        //inYellow.setLabel("YellowClickStream");
-        //this.view.add(inYellow);
-        //var inGreen = new draw2d.shape.frp.Input({ x: 300, y: 15 });
-        //inGreen.setLabel("GreenClickStream");
-        //this.view.add(inGreen);
-
-        //var acMerge = new draw2d.shape.frp.Action({ x: 150, y: 100 });
-        //acMerge.setLabel("Merge");
-        //this.view.add(acMerge);
-
-        //var connRedMerge = createConnection(inRed.getOutputPort, acMerge.getInputPort);
-        //this.view.add(connRedMerge);
     },
 
     getNodes: function () {

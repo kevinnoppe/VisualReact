@@ -28,9 +28,6 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
         }, attr), setter, getter);
 
         this.reactiveFunction = null;
-        //this.observable = null;
-        //this.outputObservable = new Rx.BehaviorSubject(new Rx.Observable.empty());
-        //this.eventSources = {};
 
         this.bgColor = new draw2d.util.Color("#f3f3f3"); 
         this.lighterBgColor= this.bgColor.lighter(0.2).hash();
@@ -44,8 +41,6 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
 
     setSubscriberFunction: function (text) {
         this.actionNode.setSubscriberFunction(text);
-        //this.subscriberFunction = text;
-        //return this;
     },
 
     /**
@@ -55,68 +50,23 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
      */
     setActionFunction: function (newAction) {
         this.actionNode.setActionFunction(newAction);
-        //this.actionFunction = newAction;
-        //this.actionLabel.setText(newAction);
-        //// If there already is an observable, dispose the old subscribtion
-        //// and create a new one with the new filter.
-        //if (this.observable !== null) {
-        //    this.subscribedFunction.dispose();
-        //    // Create the new reactive function with the correct filter
-        //    this.reactiveFunction =
-        //        this.action.call(this.observable, eval(this.actionFunction)).share();
-        //    // Subscribe to the new reactive function
-        //    this.subscribedFunction =
-        //        this.reactiveFunction.subscribe(eval(this.subscriberFunction));
-        //}
     },
 
     setReactiveInput: function (observableId, observable, pauser) {
         this.actionNode.setReactiveInput(observableId, observable, pauser);
-        //// Again we use share to defer Rx from creating multiple instances
-        //// of the subscription. This way all subscribers use the same
-        //// events as if all they were all executed in one action.
-        //this.reactiveFunction =
-        //    this.action.call(observable, eval(this.actionFunction)).share();
-        //this.subscribedFunction =
-        //    this.reactiveFunction.subscribe(eval(this.subscriberFunction));
-        //// Store reference to the observable so it can be recomputed if necessary.
-        //this.observable = observable;
-        //// Notify all nodes that use output that the source has changed.
-        ////this.outputObservable.onNext(reactiveFunction);
     },
 
     setInput: function (observable) {
-        this.actionNode.setInput(observable)
-        //this.inputObservable = observable;
-        //observable.subscribe(
-        //    function (newReactiveInput) {
-        //        // Every time the input source changes the old
-        //        // input source is dropped and renewed. Since this
-        //        // also might change the output, the dependant 
-        //        // nodes are also notified with of the new source stream.
-        //        setReactiveInput(newReactiveInput);
-        //    });
+        this.actionNode.setInput(observable);
     },
-
-
-    // Add a new eventSource, this is done when a new connection is made between
-    // this and another element. Depending on the number of input ports, there
-    // can be one or more input sources.
-    // Try to create a system that uses reactive language to update the source
-    // of each element by propagating the new source to all listeners.
-    //updateSource: function(updatedSource) {
-
-    //},
 
     removeReactiveInput: function (inputId) {
         this.actionNode.removeReactiveInput(inputId);
-        //this.subscribedFunction.dispose();
     },
 
     getReactiveOutput: function (targetId, target) {
         var o = this.reactiveFunction;
         return this.actionNode.getReactiveOutput(targetId, target);
-        //return this.reactiveFunction;
     },
 
     removeReactiveSubscriber: function (subscriberId) {
@@ -125,5 +75,11 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
 
     getCode: function (varName) {
         return this.actionNode.getCode(varName);
-    }
+    },
+
+    /**
+     * Code that needs to be executed when removing the node.
+     * Should be implemented by the necessary nodes.
+     */
+    remove: function () {}
 });

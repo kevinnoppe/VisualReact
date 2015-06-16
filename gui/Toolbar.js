@@ -10,19 +10,16 @@ VisualReact.Toolbar = Class.extend({
 		// register this class as event listener for the canvas
 		// CommandStack. This is required to update the state of 
 		// the Undo/Redo Buttons.
-		//
 		view.getCommandStack().addEventListener(this);
 
 		// Register a Selection listener for the state hnadling
 		// of the Delete Button
-		//
 		var _this = this;
 		view.on("select", function(emitter, figure){
 		    _this.deleteButton.button( "option", "disabled", figure===null );
 		});
 		
-		// Inject the UNDO Button and the callbacks
-		//
+		// Inject the UNDO Button and the callback
 		this.undoButton  = $("<button>Undo</button>");
 		this.html.append(this.undoButton);
 		this.undoButton.button().click($.proxy(function(){
@@ -30,7 +27,6 @@ VisualReact.Toolbar = Class.extend({
 		},this)).button( "option", "disabled", true );
 
 		// Inject the REDO Button and the callback
-		//
 		this.redoButton  = $("<button>Redo</button>");
 		this.html.append(this.redoButton);
 		this.redoButton.button().click($.proxy(function(){
@@ -41,7 +37,6 @@ VisualReact.Toolbar = Class.extend({
 		this.html.append(this.delimiter);
 
 		// Inject the DELETE Button
-		//
 		this.deleteButton  = $("<button>Delete</button>");
 		this.html.append(this.deleteButton);
 		this.deleteButton.button().click($.proxy(function(){

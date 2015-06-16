@@ -20,6 +20,7 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
 
         // The name generated for the button used by code generation
         this.buttonName = guid();
+
         // The type of event that is being listened to
         this.eventType = "'click'";
 
@@ -28,7 +29,6 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
         // This function creates the reactive click event.
         this.on('click', function (event) {
             _this.inputNode.output.onNext(event);
-            //_this.subject.onNext(event);
         });
 
         this.vert = new draw2d.shape.layout.VerticalLayout();
@@ -41,18 +41,24 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
         
         this.inputNode = new InputNode(this).initFromSubject(this.subject);
-        //this.inputNode.setSubscribeFunction(function (x) {
-        //    console.log("InputEvent");
-        //});
 
         // Create a new button (we listen for clicks on the button)
-        this.$btnReactiveButton = jQuery('<button/>', {
-            text: "new button",
+        createButton();
+    },
+
+    createButton: function () {
+        var $btnReactiveButton = jQuery('<button/>', {
+            id: this.buttonName,
+            text: "Input button",
             click: function (event) {
                 _this.inputNode.output.onNext(event);
             }
         });
         jQuery('#reactive-html-content').append(this.$btnReactiveButton);
+    },
+
+    remove: function () {
+        jQuery('#' + this.buttonName).remove();
     },
 
     getCode: function (body, script) {

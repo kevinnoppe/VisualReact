@@ -49,23 +49,20 @@ draw2d.shape.frp.Input = draw2d.shape.basic.Trapezoid.extend({
     },
 
     getReactiveOutput: function (targetId, target) {
-        // The share is an operator on a observable or a subject that
-        // ensures that only one subscription is shared between all 
-        // subscribers. Standard subscriptions are duplicated but we
-        // don't wan't this since we just want to use the intermediate
-        // state of the stream for visual representation.
-        //return this.outputObservable;
-        //var r = this.subject.asObservable().share();
         return this.inputNode.getReactiveOutput(targetId, target);
     },
 
     removeReactiveSubscriber: function (subscriber) {
         this.inputNode.removeReactiveSubscriber(subscriber);
-        // No reactive input so do nothing.
     },
 
     getCode: function () {
-        //return this.inputNode.getCode();
-    }
+    },
+
+    /**
+     * Code that needs to be executed when removing the node.
+     * Should be implemented by the necessary nodes.
+     */
+    remove: function () {}
        
 });

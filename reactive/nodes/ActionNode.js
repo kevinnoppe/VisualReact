@@ -31,6 +31,7 @@
     this.paused = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
 };
 
+// Set the correct prototype and constructors to mimic object inheritance.
 ActionNode.prototype = Object.create(ReactiveNode.prototype);
 ActionNode.prototype.constructor = ActionNode;
 
@@ -52,12 +53,6 @@ ActionNode.prototype.setActionFunction = function (newAction) {
  * @param input The input is an Observable that is the source
  * of data for the action node.
  */
-//ActionNode.prototype.setReactiveInput = function (input) {
-//    // Store the new input and apply the corresponding action to it.
-//    this.input = input;
-//    this.updateInput();
-//};
-
 ActionNode.prototype.setReactiveInput = function (inputId, input, pauser) {
     this.inputs.add(inputId, input);
     this.pauser = pauser;
@@ -69,25 +64,16 @@ ActionNode.prototype.setReactiveInput = function (inputId, input, pauser) {
  */
 ActionNode.prototype.removeReactiveInput = function (inputId) {
     this.inputs.remove(inputId);
-    //if (Object.keys(this.inputList) === 0) {
-    //    this.isInputEmpty = true;
-    //}
-    //var idx = this.inputList.indexOf(input);
-    //if (idx !== -1) {
-    //    this.inputList.splice(idx, 1);
-    //}
-    // If the inputList is now empty, reset to actual empty input
-    //if (this.inputList.length === 0) { this.inputList.push(this.emptyInput) };
-    //this.input = null;
+
+    // Reset the subscription
     if (this.subscription !== null) {
         this.subscription.dispose();
         this.subscription = null;
     }
+
     // Since the input has changed, there needs to be an update of 
     // the internal working of the action.
     this.updateInput();
-    //this.output = this.emptyStream;
-    //this.updateOutput();
 };
 
 ActionNode.prototype.getNodeExecutionArguments = function() {
@@ -103,24 +89,12 @@ ActionNode.prototype.updateInput = function () {
     this.output = nodeExecution(
         this.inputs.isEmpty() ? [this.emptyStream] : this.inputs.values(),
         this.getNodeExecutionArguments()).pausable(this.pauser).share();
-    //var action = reactiveLanguage.getFunction(this.actionType);
-    //var argumentsArray = this.inputList;
-    //argumentsArray.push(eval(this.actionFunction));
-    //var arg = eval(this.actionFunction);
-    //var first = argumentsArray.shift();
-    //this.output = action.apply(first, argumentsArray);
-    //if (this.inputList.length === 1) {
-    //    this.output = action.call(first, eval(this.actionFunction)).share();
-    //}
-    //else {
-    //    // Doe iets anders want er zijn meerdere input streams
-    //}
-    // Subscribe to our own output so it can be displayed and used.
     // If there was a previous subscription, dispose of it so it can
     // be garbage collected.
     if (this.subscription !== null) {
         this.subscription.dispose();
     }
+    // Subscribe to the updated output.
     this.subscription =
         this.output.subscribe(eval(this.subscribeFunction));
     this.updateOutput();
@@ -130,33 +104,17 @@ ActionNode.prototype.updateInput = function () {
  * Notify all dependants that the output has changed.
  */
 ActionNode.prototype.updateOutput = function () {
-    //var length = this.dependants.length;
-    //for (i = 0; i < length; i++) {
-    //    this.dependants[i].setReactiveInput(this.output);
-    //}
     this.dependants.each(function (key, val) {
         val.setReactiveInput(this.output);
     });
-    //for (key in this.dependants) {
-    //    var dependant = this.dependants.get(key);
-    //    dependant.setReactiveInput(this.output);
-    //}
 };
 
 ActionNode.prototype.getReactiveOutput = function (id, dependant) {
     this.dependants.add(id, dependant);
-    //this.dependants.push(dependant);
     return this.output.asObservable().share();
 };
 
 ActionNode.prototype.removeReactiveSubscriber = function (subscriberId) {
-    //var index = this.dependants.indexOf(subscriber);
-    //if (index >= 0) {
-    //    this.dependants.splice(index, 1);
-    //}
-    //if (this.dependants.hasOwnProperty(subscriberId)) {
-    //    delete this.dependants[subscriberId];
-    //}
     this.dependants.remove(subscriberId)
 };
 

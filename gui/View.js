@@ -53,14 +53,6 @@ VisualReact.View = draw2d.Canvas.extend({
         // create a command for the undo/redo support
         var command = new draw2d.command.CommandAdd(this, figure, x, y);
         this.getCommandStack().execute(command);
-    }//,
-
-    //getNodes: function () {
-    //    return this.getFigures();
-    //},
-
-    //setRx: function (Rx) {
-    //    this.Rx = Rx;
-    //}
+    }
 });
 

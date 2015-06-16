@@ -59,15 +59,13 @@ draw2d.shape.frp.Zip = draw2d.shape.frp.Action.extend({
 
         this.add(this.content, new draw2d.layout.locator.CenterLocator());
 
+        // Create input and output ports.
+        // Notice there is no maxFanOut here, a zip can take multiple inputs.
         this.inputPort = this.createPort("input", new draw2d.layout.locator.TopLocator());
-        //this.inputPort.on("connect", function (emitter, connection) {
-        //    alert("port connected");
-        //});
-
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
         // Create a new ActionNode that takes care of the reactive part.
-        this.actionNode = new ZipNode(this, this.action, this.actionFunction);
+        this.actionNode = new ActionNode(this, this.action, this.actionFunction);
         this.actionNode.setSubscribeFunction(this.subscribeFunction);
     }
 });

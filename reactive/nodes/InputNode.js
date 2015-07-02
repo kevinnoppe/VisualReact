@@ -10,7 +10,12 @@
     // input observable.
     this.inputFunction = null;
 
-    this.output =  reactiveLanguage.getFunction(ReactiveLanguage.empty)();
+    this.output = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
+
+    // The debugger that is linked to this node, it stores all input
+    // events emitted by this node.
+    this.debug = null;
+    this.debugSubscription = null;
 
     return this;
 };
@@ -30,7 +35,7 @@ InputNode.prototype.initFromSubject = function (subject) {
 InputNode.prototype.initFromFunction = function (inputFunction) {
     this.setInputFunction(inputFunction);
     return this;
-}
+};
 
 /**
  * Set the actual function that is executed by the action function
@@ -71,6 +76,20 @@ InputNode.prototype.updateOutput = function () {
         var dependant = this.dependants.get(key);
         dependant.setInput(this.output);
     }
+    // Check if the debugger linked exists, if it does, send it updates
+    // of every new input.
+    if (this.debug !== null) {
+        if (this.debugSubscription !== null) {
+            this.debugSubscription.dispose();
+        }
+        this.debugSubscription = this.output.subscribe(function (e) {
+            this.debug.newInput({
+                event: e,
+                time: Date.getTime(),
+                source: getId()
+            })
+        });
+    }
     return this;
 };
 
@@ -82,6 +101,19 @@ InputNode.prototype.getReactiveOutput = function (id, dependant) {
 
 InputNode.prototype.removeReactiveSubscriber = function (subscriberId) {
     this.dependants.remove(subscriberId);
+};
+
+InputNode.prototype.setDebugger = function (debug) {
+    this.debug = debug;
+    //TODO Find an effective way to do this.
+    //this.getReactiveOutput().subscribe(
+    //    function (e) {
+    //        this.debugger.newInput({
+    //                event: e,
+    //                time: Date.getTime(),
+    //                source: getId()
+    //            })
+    //    });
 };
 
 InputNode.prototype.getCode = function (element, event) {

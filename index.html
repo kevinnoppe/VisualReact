@@ -429,6 +429,7 @@
     <script src="./draw2d/src/shape/frp/Map.js"> </script>
     <script src="./draw2d/src/shape/frp/Zip.js"> </script>
     <script src="./draw2d/src/shape/frp/Output.js"> </script>
+    <script src="./draw2d/src/shape/frp/ConsoleOutput.js"> </script>
     <script src="./draw2d/src/shape/state/Start.js"> </script>
     <script src="./draw2d/src/shape/state/End.js"> </script>
     <script src="./draw2d/src/shape/state/State.js"> </script>
@@ -462,12 +463,34 @@
     <script src="./gui/Application.js"></script>
     <script src="./gui/View.js"></script>
     <script src="./gui/Toolbar.js"></script>
+
     <script src="./reactive/ReactiveProcessor.js"></script>
+
     <script src="./reactive/nodes/ReactiveNode.js"></script>
     <script src="./reactive/nodes/ActionNode.js"></script>
     <script src="./reactive/nodes/InputNode.js"></script>
+    <script src="./reactive/nodes/SuperNode.js"></script>
+    <script src="./reactive/nodes/FromEventNode.js"></script>
+    <script src="./reactive/nodes/MapNode.js"></script>
+    <script src="./reactive/nodes/FilterNode.js"></script>
+    <script src="./reactive/nodes/TimerNode.js"></script>
     <script src="./reactive/nodes/ZipNode.js"></script>
+    <script src="./reactive/nodes/ConsoleOutputNode.js"></script>
+
     <script src="./reactive/ReactiveLanguage.js"></script>
+
+    <script src="./reactive/rxjs/rxjsFunction.js"></script>
+    <script src="./reactive/rxjs/rxjsEmpty.js"></script>
+    <script src="./reactive/rxjs/rxjsFromEvent.js"></script>
+    <script src="./reactive/rxjs/rxjsTimer.js"></script>
+    <script src="./reactive/rxjs/rxjsMap.js"></script>
+    <script src="./reactive/rxjs/rxjsFilter.js"></script>
+    <script src="./reactive/rxjs/rxjsZip.js"></script>
+    <script src="./reactive/rxjs/rxjsSubscription.js"></script>
+    <script src="./reactive/rxjs/rxjsConsoleOutput.js"></script>
+
+    <script src="./reactive/streams/Subscription.js"></script>
+
     <script src="./reactive/RxJS.js"></script>
     <script src="./lib/graph/reactiveGraph.js"></script>
 
@@ -495,7 +518,7 @@
         <div id="toolbar">
             <!--< style="float:right" id="pClock"> Clock? </p>-->
             <div style="float:right" id="pauser">
-                <input type="button" title="Pause" onclick="pause();" value="Pause" />
+                <input type="button" id="btnPause" title="Pause" onclick="pause();" value="Pause" />
             </div>
         </div>
         <div id="canvas" class="" style="width:1500px; height:1500px;-webkit-tap-highlight-color: rgba(0,0,0,0); "></div>
@@ -508,7 +531,7 @@
         <div data-shape="draw2d.shape.frp.Filter" class="palette_node_element draw2d_droppable block">Filter node</div>
         <div data-shape="draw2d.shape.frp.Map" class="palette_node_element draw2d_droppable block">Map node</div>
         <div data-shape="draw2d.shape.frp.Zip" class="palette_node_element draw2d_droppable block">Zip node</div>
-        <div data-shape="draw2d.shape.frp.Output" class="palette_node_element draw2d_droppable block">Output node</div>
+        <div data-shape="draw2d.shape.frp.ConsoleOutput" class="palette_node_element draw2d_droppable block">Output node</div>
     </div>
     <div id="reactive-html" class="">
         <div id="reactive-html-content" class="">
@@ -519,86 +542,13 @@
         </div>
     </div>
     <script type="text/javascript">
-
         var paused = false;
-        function pause() {
-            this.app.reactiveProcessor.pause(!paused);
-            paused = !paused;
+        function pause(p) {
+            paused = (p === undefined) ? !paused : p;
+            this.app.reactiveProcessor.pause(paused);
+            var text = (paused) ? "Unpause" : "Pause";
+            jQuery('#btnPause').prop('value', text);
         }
-
-        //var source = Rx.Observable.from([1,2,3,4,5])
-        //.map(function (x) {
-        //    var rand = Math.ceil(Math.random() * 5);
-        //    console.log("Rand: " + rand);
-        //    return rand;
-        //});
-
-        //var l = source.filter(function (x) {
-        //    return x > 3;
-        //}).subscribe(function (x) {
-        //    console.log("Bigger: " + x);
-        //});
-
-        //var s = source.filter(function (x) {
-        //    return x < 3;
-        //}).subscribe(function (x) {
-        //    console.log("Smaller: " + x);
-        //});
-
-
-        //// Create the function in substeps as the visual would do.
-        //var source = Rx.Observable.timer(5000, 5000).take(2);
-        //var hotSource = source.publish();
-        //var randoms = hotSource.map(function (x) {
-        //    return Math.ceil(Math.random() * 5);
-        //}).share();
-        //var randomsPrint = randoms.subscribe(function (x) {
-        //    console.log("MultiFunction tick: " + x);
-        //});
-        //var bigRandoms = randoms.filter(function (x) {
-        //    return x > 3;
-        //});
-        //var bigRandomsPrint = bigRandoms.subscribe(function (x) {
-        //    console.log("MultiFunction big tick: " + x);
-        //});
-        //hotSource.connect();
-
-        //// Create the function in one time to check the share state.
-        //var oneSource =
-        //    Rx.Observable.timer(5000, 5000)
-        //    .take(2)
-        //    .map(function (x) {
-        //        var rand = Math.ceil(Math.random() * 5);
-        //        console.log("OneFuncion tick: " + rand);
-        //        return rand;
-        //    })
-        //    .filter(function (x) {
-        //        if (x > 3) {
-        //            console.log("OneFunction big tick: " + x);
-        //            return x;
-        //        }
-        //    });
-        //oneSource.subscribe(function (x) {
-        //    // Do nothing but make sure it actually runs by subscribing.
-        //})
-
-
-        //function generate() {
-        //    var nodes = this.app.getNodes();
-        //    nodes.map(function (node) {
-        //        if (node instanceof draw2d.shape.frp.Input) {
-        //            alert(node.getType);
-        //        }
-        //    })
-        //    alert("Generating");
-        //}
-        //var $block = $('.block');
-        //var $clock = $('#pClock');
-        //var clickStream = Rx.Observable.fromEvent($clock, 'click');
-        //clickStream.subscribe(function (x) {
-        //    $clock.empty();
-        //    $clock.text("Clock clicked, Rx works.");
-        //});
     </script>
 </body>
 

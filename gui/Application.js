@@ -47,8 +47,8 @@ VisualReact.Application = Class.extend(
                 resizable: true,
                 closable: true,
                 resizeWhileDragging: true,
-                spacing_open: 0,
-                spacing_closed: 0,
+                //spacing_open: 0,
+                //spacing_closed: 0,
                 paneSelector: "#reactive-html"
             }
         });
@@ -81,7 +81,7 @@ VisualReact.Application = Class.extend(
                 paneSelector: "#reactive-html-content"
             },
             center: {
-                resizable: false,
+                resizable: true,
                 closable: false,
                 spacing_open: 0,
                 spacing_closed: 0,

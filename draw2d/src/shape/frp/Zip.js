@@ -20,29 +20,33 @@ draw2d.shape.frp.Zip = draw2d.shape.frp.Action.extend({
 
         this._super(attr, setter, getter);
 
-        this.subscribeFunction = "(function (x) { console.log(\"Zipped : \" + x); })";
-        this.actionFunction = "(function () {return arguments.length;})"
-        //this.actionFunction += "for (i = 0; i < arguments.length; i++) {\n";
-        //this.actionFunction += "res += arguments[i] + \", \";} \n";
-        //this.actionFunction += "console.log(\"Zipped: \" + res); \n";
-        //this.actionFunction += "return res;})";
+        this.reactiveType = ReactiveLanguage.zip;
 
-        this.action = ReactiveLanguage.zip;
+        //this.subscribeFunction = "(function (x) { console.log(\"Zipped : \" + x); })";
+        this.actionFunction = function () { return arguments.length; }
+        // Alternative zip function
+        //this.actionFunction = function () {
+        //    for (i = 0; i < arguments.length; i++) {
+        //        res += arguments[i];
+        //        console.log("Zipped: " + res);
+        //        return res;
+        //    }
+        //};
 
         this.content = new draw2d.shape.layout.VerticalLayout();
 
-        this.typeLabel = new draw2d.shape.basic.Label({
-            text: this.subscribeFunction,
-            color: this.darkerBgColor,
-            bgColor: null
-        });
-        this.typeLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
-            {
-                onCommit: function (value) {
-                    _this.actionNode.setSubscribeFunction(value);
-                }
-            }));
-        this.content.add(this.typeLabel, new draw2d.layout.locator.CenterLocator(this));
+        //this.typeLabel = new draw2d.shape.basic.Label({
+        //    text: this.subscribeFunction,
+        //    color: this.darkerBgColor,
+        //    bgColor: null
+        //});
+        //this.typeLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
+        //    {
+        //        onCommit: function (value) {
+        //            _this.actionNode.setSubscribeFunction(value);
+        //        }
+        //    }));
+        //this.content.add(this.typeLabel, new draw2d.layout.locator.CenterLocator(this));
 
         this.actionLabel = new draw2d.shape.basic.Label({
             text: this.actionFunction,
@@ -52,7 +56,7 @@ draw2d.shape.frp.Zip = draw2d.shape.frp.Action.extend({
         this.actionLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
             {
                 onCommit: function(value) {
-                    _this.actionNode.setActionFunction(value);
+                    _this.controlNode.setActionFunction(eval("(" + value + ")"));
                 }
             }));
         this.content.add(this.actionLabel, new draw2d.layout.locator.CenterLocator(this));
@@ -65,7 +69,11 @@ draw2d.shape.frp.Zip = draw2d.shape.frp.Action.extend({
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
         // Create a new ActionNode that takes care of the reactive part.
-        this.actionNode = new ActionNode(this, this.action, this.actionFunction);
-        this.actionNode.setSubscribeFunction(this.subscribeFunction);
+        //this.actionNode = new ActionNode(this, this.action, this.actionFunction);
+        //this.actionNode.setSubscribeFunction(this.subscribeFunction);
+
+        this.controlNode = new ZipNode(
+            this,
+            this.actionFunction);
     }
 });

@@ -20,25 +20,35 @@ draw2d.shape.frp.Filter = draw2d.shape.frp.Action.extend({
 
         this._super(attr, setter, getter);
 
-        this.subscriberFunction = "(function (x) { console.log(\"FilterEvent \" + x); })";
-        this.actionFunction = "(function (x) { return x === 'a' || \n x === 'e' || \n x === 'i' || \n x === 'o' || \n x === 'u'; })";
-            //"(function (x) { return x; })";
-        this.action = ReactiveLanguage.filter;
+        this.reactiveType = ReactiveLanguage.filter;
+
+        //this.subscriberFunction = "(function (x) { console.log(\"FilterEvent \" + x); })";
+        //this.actionFunction = function (x) {
+        //    return x === 'a' ||
+        //        x === 'e' ||
+        //        x === 'i' ||
+        //        x === 'o' ||
+        //        x === 'u';
+        //};
+        // Alternative filter functions:
+        this.actionFunction = function (x) {
+            return x > 3;
+        };
 
         this.content = new draw2d.shape.layout.VerticalLayout();
 
-        this.typeLabel = new draw2d.shape.basic.Label({
-            text: this.subscriberFunction,
-            color: this.darkerBgColor,
-            bgColor: null
-        });
-        this.typeLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
-            {
-                onCommit: function (value) {
-                    _this.setSubscriberFunction(value);
-                }
-            }));
-        this.content.add(this.typeLabel, new draw2d.layout.locator.CenterLocator(this));
+        //this.typeLabel = new draw2d.shape.basic.Label({
+        //    text: this.subscriberFunction,
+        //    color: this.darkerBgColor,
+        //    bgColor: null
+        //});
+        //this.typeLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
+        //    {
+        //        onCommit: function (value) {
+        //            _this.setSubscriberFunction(value);
+        //        }
+        //    }));
+        //this.content.add(this.typeLabel, new draw2d.layout.locator.CenterLocator(this));
 
         this.actionLabel = new draw2d.shape.basic.Label({
             text: this.actionFunction,
@@ -48,7 +58,7 @@ draw2d.shape.frp.Filter = draw2d.shape.frp.Action.extend({
         this.actionLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
             {
                 onCommit: function(value) {
-                    _this.setActionFunction(value);
+                    _this.controlNode.setActionFunctio(eval("(" + value + ")"));
                 }
             }));
         this.content.add(this.actionLabel, new draw2d.layout.locator.CenterLocator(this));
@@ -60,7 +70,11 @@ draw2d.shape.frp.Filter = draw2d.shape.frp.Action.extend({
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
         // Create the actionnode coupled with this object.
-        this.actionNode = new ActionNode(this, this.action, this.actionFunction);
-        this.actionNode.setSubscribeFunction(this.subscriberFunction);
+        //this.actionNode = new ActionNode(this, this.action, this.actionFunction);
+        //this.actionNode.setSubscribeFunction(this.subscriberFunction);
+
+        this.controlNode = new FilterNode(
+            this,
+            this.actionFunction);
     }
 });

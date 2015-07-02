@@ -15,12 +15,12 @@
     // The input stream that emits events from the input node. To
     // start this is an empty stream until something changes.
     //TODO Make this completely language independant
-    this.emptyStream = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
+    //this.emptyStream = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
     this.inputs = new Dictionary();
 
     // The output stream that emits events to the other nodes. To
     // start this is an empty stream until something changes.
-    this.output = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
+    //this.output = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
 
     // The subscription to the result of this action. Stored so it 
     // can be disposed of.
@@ -28,7 +28,7 @@
 
     // The pauser that will sends event when te application is paused
     // or resumed.
-    this.paused = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
+    //this.paused = reactiveLanguage.getFunction(ReactiveLanguage.empty)();
 };
 
 // Set the correct prototype and constructors to mimic object inheritance.
@@ -115,7 +115,7 @@ ActionNode.prototype.getReactiveOutput = function (id, dependant) {
 };
 
 ActionNode.prototype.removeReactiveSubscriber = function (subscriberId) {
-    this.dependants.remove(subscriberId)
+    this.dependants.remove(subscriberId);
 };
 
 ActionNode.prototype.getCode = function (varName) {

@@ -20,29 +20,28 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
 
         this._super(attr, setter, getter);
 
-        this.subscriberFunction = "(function (y) { console.log(\"Random: \" + y); })";
-        this.actionFunction = "(function (x) { return Math.ceil(Math.random() * 5); })";
+        this.reactiveType = ReactiveLanguage.map;
+
+        //this.subscriberFunction = "(function (y) { console.log(\"Random: \" + y); })";
+        this.actionFunction = function (x) { return Math.ceil(Math.random() * 5); };
         // Alternate functions
         // Random number 1 to 5
         //(function (x) { return Math.ceil(Math.random() * 5); })
-        // Number larger than ?
-        //(function(x) { if (x > 3) {return x;}})
-        this.action = ReactiveLanguage.map;
 
         this.content = new draw2d.shape.layout.VerticalLayout();
 
-        this.typeLabel = new draw2d.shape.basic.Label({
-            text: this.subscriberFunction,
-            color: this.darkerBgColor,
-            bgColor: null
-        });
-        this.typeLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
-            {
-                onCommit: function (value) {
-                    _this.actionNode.setSubscribeFunction(value);
-                }
-            }));
-        this.content.add(this.typeLabel, new draw2d.layout.locator.CenterLocator(this));
+        //this.typeLabel = new draw2d.shape.basic.Label({
+        //    text: this.subscriberFunction,
+        //    color: this.darkerBgColor,
+        //    bgColor: null
+        //});
+        //this.typeLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
+        //    {
+        //        onCommit: function (value) {
+        //            _this.actionNode.setSubscribeFunction(value);
+        //        }
+        //    }));
+        //this.content.add(this.typeLabel, new draw2d.layout.locator.CenterLocator(this));
 
         this.actionLabel = new draw2d.shape.basic.Label({
             text: this.actionFunction,
@@ -52,7 +51,11 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
         this.actionLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
             {
                 onCommit: function(value) {
-                    _this.actionNode.setActionFunction(value);
+                    //_this.actionNode.setActionFunction(value);
+                    // When setting the reactive function, we want to make sure
+                    // that the javascript has been evaluated, by doing this
+                    // functions can be created for use in reactive nodes.
+                    _this.controlNode.setActionFunction(eval("(" + value + ")"));
                 }
             }));
         this.content.add(this.actionLabel, new draw2d.layout.locator.CenterLocator(this));
@@ -65,7 +68,11 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
         // Create a new ActionNode that takes care of the reactive part.
-        this.actionNode = new ActionNode(this, this.action, this.actionFunction);
-        this.actionNode.setSubscribeFunction(this.subscriberFunction);
+        //this.actionNode = new ActionNode(this, this.action, this.actionFunction);
+        //this.actionNode.setSubscribeFunction(this.subscriberFunction);
+
+        this.controlNode = new MapNode(
+            this,
+            this.actionFunction);
     }
 });

@@ -26,6 +26,8 @@ draw2d.shape.frp.Output = draw2d.shape.basic.Rectangle.extend({
             height: 30
         }, attr), setter, getter);
 
+        this.reactiveFunction = ReactiveLanguage.consoleOutput;
+
         this.bgColor = new draw2d.util.Color("#f3f3f3");
         this.lighterBgColor = this.bgColor.lighter(0.2).hash();
         this.darkerBgColor = this.bgColor.darker(0.2).hash();
@@ -49,8 +51,12 @@ draw2d.shape.frp.Output = draw2d.shape.basic.Rectangle.extend({
         return this;
     },
 
-    getOutputPort: function () {
-        return this.outputPort;
+    getReactiveType: function () {
+        return this.reactiveFunction;
+    },
+
+    getControlNode: function () {
+        return this.controlNode;
     },
 
     /**

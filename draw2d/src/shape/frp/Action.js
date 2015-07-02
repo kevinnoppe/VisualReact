@@ -77,6 +77,14 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
         return this.actionNode.getCode(varName);
     },
 
+    getReactiveType: function () {
+        return this.reactiveType;
+    },
+
+    getControlNode: function () {
+        return this.controlNode;
+    },
+
     /**
      * Code that needs to be executed when removing the node.
      * Should be implemented by the necessary nodes.

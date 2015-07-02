@@ -20,58 +20,69 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
 
         this._super(attr, setter, getter);
 
+        // Store the identifier of the reactive function, used to create
+        // the correct controller and model nodes.
+        this.reactiveFunction = ReactiveLanguage.timer;
+
+        this.dueTime = 2000;
+        this.intervalTime = 1000;
+
         this.vert = new draw2d.shape.layout.VerticalLayout();
 
-        this.typeLabel = new draw2d.shape.basic.Label({
-            text: "Rx observable function",
+        this.lblDueTime = new draw2d.shape.basic.Label({
+            text: this.dueTime,
             color: this.darkerBgColor,
             bgColor: null
         });
-        this.vert.add(this.typeLabel);
-
-        this.reactiveFunction = null;
-        this.setRxFunction("Rx.Observable.timer(1000, 1000)");
-
-        this.RxFunction = new draw2d.shape.basic.Label({
-            text: this.reactiveFunction,
-            color: this.darkerBgColor,
-            bgColor: null
-        });
-        this.RxFunction.installEditor(new draw2d.ui.LabelInplaceEditor({
+        this.lblDueTime.installEditor(new draw2d.ui.LabelInplaceEditor({
             onCommit: function (value) {
-                _this.setRxFunction(value);
+                _this.setDueTime(value);
             }
         }));
-        this.vert.add(this.RxFunction);
+        this.vert.add(this.lblDueTime);
+
+        this.lblIntervalTime = new draw2d.shape.basic.Label({
+            text: this.intervalTime,
+            color: this.darkerBgColor,
+            bgColor: null
+        });
+        this.lblIntervalTime.installEditor(new draw2d.ui.LabelInplaceEditor({
+            onCommit: function (value) {
+                _this.setIntervalTime(value);
+            }
+        }));
+        this.vert.add(this.lblIntervalTime);
 
         this.add(this.vert, new draw2d.layout.locator.CenterLocator());
 
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
-        this.inputNode = new InputNode(this).initFromFunction(this.reactiveFunction);
-        
+        //this.inputNode = new InputNode(this).initFromFunction(this.executableReactiveFunction);
+        this.controlNode = new TimerNode(
+            this,
+            this.dueTime,
+            this.intervalTime);
+
     },
 
-    /**
-      * @method
-      * Set the text to show if the state shape
-      * 
-      * @param {String} text
-      */
-    setRxFunction: function (rxfunction) {
-        this.reactiveFunction = rxfunction;
-        this.subject = (eval(this.reactiveFunction)).asObservable().share();
-        return this.reactiveFunction;
+    getCode: function(body, script) {
+        var extraScript = this.inputNode.getCode(this.buttonName, this.eventType);
+        script += extraScript;
+        return [body, script];
     },
 
-    /**
-     * @method
-     *
-     * Overwrite the getReactiveFunction of Input because now the function needs
-     * to be evaluated before returning.
-     */
-    getReactiveOutput: function (target) {
-        return this.inputNode.getReactiveOutput(target);
+    setDueTime: function (dueTime) {
+        if (this.dueTime !== dueTime) {
+            this.dueTime = dueTime;
+            this.controlNode.setDueTime(this.dueTime);
+        }
+    },
+
+    setIntervalTime: function (intervalTime) {
+        if (this.intervalTime !== intervalTime) {
+            this.intervalTime = intervalTime;
+            this.controlNode.setIntervalTime(this.intervalTime);
+        }
     }
        
 });

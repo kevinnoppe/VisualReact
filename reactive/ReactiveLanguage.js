@@ -3,6 +3,7 @@
     functions = {};
     functionCalls = {};
     nodeExecution = {};
+    models = {};
 };
 
 // All available language constructs
@@ -11,6 +12,9 @@ ReactiveLanguage.map = "map";
 ReactiveLanguage.filter = "filter";
 ReactiveLanguage.zip = "zip";
 ReactiveLanguage.fromEvent = "fromEvent";
+ReactiveLanguage.filter = "filter";
+ReactiveLanguage.subscription = "subscribe";
+ReactiveLanguage.consoleOutput = "consoleOutput";
 
 // The list with all functions that can be executed.
 ReactiveLanguage.prototype.functions = {};
@@ -43,4 +47,8 @@ ReactiveLanguage.prototype.getFunctionCall = function (name) {
  */
 ReactiveLanguage.prototype.getNodeExecution = function (name) {
     return nodeExecution[name];
+};
+
+ReactiveLanguage.prototype.createModel = function (figure) {
+    throw new Error("Needs to be implemented by the host language.")
 }

@@ -8,7 +8,15 @@
         // Register this class as a listener for the CommandStack.
         // This way we can update the reactive part of the application
         this.reactiveGraph = new reactiveGraph();
+        // The global stream that allows to pause and resume the other streams.
         this.pauser = new Rx.Subject();
+
+        // Create a global "listener" that stores a list of all inputs in the
+        // application, this way the application can be "replayed".
+        this.inputs = [];
+
+        this.reactiveNodes = new Dictionary();
+        this.connections = new Dictionary();
         view.commandStack.addEventListener(this);
     },
 
@@ -20,17 +28,34 @@
         if (event.getDetails() === draw2d.command.CommandStack.POST_EXECUTE) {
             switch (event.getCommand().getLabel()) {
                 case draw2d.Configuration.i18n.command.addShape:
+                    // When creating a new input shape, add the possibility
+                    // to notify the main mechanism that stores all inputs.
+                    // This should be used to recreate the execution during
+                    // debugging.
+                    if (event.getCommand().getFigure() instanceof draw2d.shape.frp.Input) {
+                        event.getCommand().getFigure().setDebugger(this);
+                    }
+                    this.createNode(event.getCommand().getFigure());
                     break;
                 case draw2d.Configuration.i18n.command.connectPorts:
                     if (event.getCommand() instanceof draw2d.command.CommandConnect) {
                         this.connect(
                             event.getCommand().getSource().getParent(),
-                            event.getCommand().getTarget().getParent());
+                            event.getCommand().getTarget().getParent(),
+                            event.getCommand().getConnection().getId());
                         this.reactiveGraph.addEdge(
                             event.getCommand().getSource().getParent().getId(),
                             event.getCommand().getTarget().getParent().getId());
-                        console.log(this.reactiveGraph.getTopologicalSort());
-                        this.createCode();
+                        try {
+                            console.log(this.reactiveGraph.getTopologicalSort());
+                        }
+                        catch (e) {
+                            console.log(e.message);
+
+                        }
+                        pause(false);
+                        //this.createCode();
+                        
                         //inputFunction = event.command.source.parent.getReactiveFunction();
                         //source = event.getCommand().getSource().getParent().getReactiveFunction();
                         //event.getCommand().getTarget().getParent().setReactiveInput(inputFunction);
@@ -53,8 +78,9 @@
                         var connection = event.getCommand().figure;
                         console.log("Removing connection");
                         this.disconnect(
-                            connection.getSource().getParent(),
-                            connection.getTarget().getParent());
+                            connection.getId());
+                            //connection.getSource().getParent(),
+                            //connection.getTarget().getParent());
                     } else {
                         var connections = event.getCommand().figure.getConnections()
                         console.log("Removing figure");
@@ -71,18 +97,42 @@
         }
     },
 
-    connect: function (source, target) {
-        var sourceId = source.getId();
-        var targetId = target.getId();
-        var output = source.getReactiveOutput(targetId, target);
-        target.setReactiveInput(sourceId, output, this.pauser);
+    createNode: function (figure) {
+        // The draw2d node is stored and used as the view.
+        // A model is made that represents the reactive counterpart.
+        var control = figure.getControlNode();
+        //var model = control.getModel();
+        // The id is stored separately for easy retrieval.
+        //var newNode = new node(
+        //    figure,
+        //    control,
+        //    model);
+        // Add the new node to the internal collection of reactive nodes.
+        this.reactiveNodes.add(figure.getId(), control);
     },
 
-    disconnect: function (source, target) {
-        var sourceId = source.getId();
-        var targetId = target.getId();
-        source.removeReactiveSubscriber(targetId);
-        target.removeReactiveInput(sourceId);
+    connect: function (source, target, connectionId) {
+        var sourceControl = this.reactiveNodes.get(source.getId());
+        var targetControl = this.reactiveNodes.get(target.getId());
+        var s = new Subscription(connectionId, sourceControl, targetControl);
+        this.connections.add(connectionId, s)
+
+        //sourceControl.subscribe(targetControl); //NODIG?
+        //var sourceId = source.getId();
+        //var targetId = target.getId();
+        //var output = source.getReactiveOutput(targetId, target);
+        //target.setReactiveInput(sourceId, output, this.pauser);
+    },
+
+    disconnect: function (connectionId) {
+        //var sourceControl = this.reactiveNodes.get(source.getId());
+        //var targetControl = this.reactiveNodes.get(target.getId());
+        var subscription = this.connections.get(connectionId);
+        //var subscription = sourceControl.removeSubscription(target.getId());
+        // Remove the subscription and make sure all relevant data gets freed.
+        subscription.remove();
+        //source.removeReactiveSubscriber(targetId);
+        //target.removeReactiveInput(sourceId);
     },
 
     createCode: function () {
@@ -109,12 +159,18 @@
         page += script;
         page += "</script>";
         page += "</BODY> </HTML>";
+        jQuery('#reactive-html-code').text(script);
         console.log(page);
         return page;
     },
     
     // Send the pause or resume command to the streams.
     pause: function (p) {
-        this.pauser.onNext(p);
+        //this.pauser.onNext(p);
+        // Pause all streams in between the nodes
+        var l = this.connections.values();
+        for (i = 0; i < l.length; i++) {
+            l[i].pause(p);
+        }
     }
 });

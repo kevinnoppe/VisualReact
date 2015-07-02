@@ -97,5 +97,9 @@ draw2d.command.CommandConnect = draw2d.command.Command.extend({
 
     getTarget: function () {
         return this.target;
+    },
+
+    getConnection: function () {
+        return this.connection;
     }
 });

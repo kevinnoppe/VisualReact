@@ -58,7 +58,7 @@ draw2d.ui.LabelInplaceEditor =  draw2d.ui.LabelEditor.extend({
         // the ENTER and ESC key to commit /cancel the operation
         //
         this.html = $('<input id="inplaceeditor">');
-        this.html.val(label.getText());
+        this.html.val(label.getText().toString());
         this.html.hide();
         
         $("body").append(this.html);

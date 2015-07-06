@@ -12,10 +12,6 @@ rxjsFunction.prototype.getFunction = function () {
     return this.reactiveFunction;
 };
 
-rxjsFunction.prototype.getFunctionCall = function () {
-    return this.functionCall;
-};
-
 rxjsFunction.prototype.getNodeExecution = function () {
     return this.nodeExecution;
 };
@@ -58,4 +54,45 @@ rxjsFunction.prototype.removeInput = function (subscriptionModel) {
 rxjsFunction.prototype.updateNode = function () {
     // First refresh the output with the new reactive values.
     this.output = this.getExecution();
+};
+
+rxjsFunction.prototype.getId = function () {
+    return this._controlNode.getId();
+};
+
+rxjsFunction.prototype.getControlNode = function () {
+    return this._controlNode;
+};
+
+rxjsFunction.prototype.getCode = function (varName) {
+    //var inputs = this._controlNode.getInputs();
+    //var subscriptions = this._controlNode.getSubscriptions();
+    this.variableName = varName;
+    
+    // Each rxjs model will store its own variable name in case we 
+    // need to refer to that name in our generated code. Since this has
+    // nothing to do with the control, this is done between the models.
+
+    // We get the variable name of each input
+    //var inputNames = [];
+    //for (var i = 0; i < this.inputs.length; i++) {
+    //    inputNames [i] = this.inputs[i].getModel().getVariableName();
+    //}
+    return this.getFunctionCall();
+};
+
+rxjsFunction.prototype.getVariableName = function () {
+    return this.variableName;
+};
+
+// Get the 
+rxjsFunction.prototype.getInputModels = function () {
+    var inputs = this._controlNode.getInputs();
+    // The is a list of subscriptions so we get the subscriber of each
+    // subscription and take the model of that.
+    var models = [];
+    for (var i = 0; i < inputs.length; i++) {
+        models[i] = inputs[i].getSource().getModel();
+    }
+    return models;
 };

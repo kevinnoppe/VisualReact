@@ -1,4 +1,5 @@
-﻿VisualReact.ReactiveProcessor = Class.extend({
+﻿/// <reference path="../index.html" />
+VisualReact.ReactiveProcessor = Class.extend({
 
     NAME: "VisualReact.ReactiveProcessor",
 
@@ -16,8 +17,24 @@
         this.inputs = [];
 
         this.reactiveNodes = new Dictionary();
+        this.inputNodes = new Dictionary();
         this.connections = new Dictionary();
+
         view.commandStack.addEventListener(this);
+    },
+
+    newInput: function (sourceId, timestamp, event) {
+        // Check if the source is an input node, currently we only
+        // want to catch these.
+        var source = this.reactiveNodes.get(sourceId);
+        if (source instanceof FromEventNode) {
+            this.inputs.push({
+                source: sourceId,
+                time: timestamp,
+                event: event
+            });
+            jQuery('#sldTimeline').prop('max', this.inputs.length);
+        }
     },
 
     // Try to inject the reactivity in the blocks after creation.
@@ -54,7 +71,7 @@
 
                         }
                         pause(false);
-                        //this.createCode();
+                        this.createCode();
                         
                         //inputFunction = event.command.source.parent.getReactiveFunction();
                         //source = event.getCommand().getSource().getParent().getReactiveFunction();
@@ -109,6 +126,9 @@
         //    model);
         // Add the new node to the internal collection of reactive nodes.
         this.reactiveNodes.add(figure.getId(), control);
+        if (figure instanceof draw2d.shape.frp.Input) {
+            this.inputNodes.add(figure.getId(), control);
+        }
     },
 
     connect: function (source, target, connectionId) {
@@ -138,15 +158,39 @@
     createCode: function () {
         var body = "";
         var script = "";
-        // First get all elements on the canvas.
-        var figures = this.view.getFigures().asArray();
-        for (i = 0; i < figures.length ; i++) {
-            if (figures[i] instanceof draw2d.shape.frp.Input) {
-                var ar = figures[i].getCode(body, script);
-                body = ar[0];
-                script = ar[1];
+        // First get a list of all elements on the canvas. To make the code
+        // generation easier and better optimised, we create a topologically
+        // sorted list. This is necessary to make sure the code for nodes that 
+        // depend on multiple input streams (eg. zip) are only defined after
+        // the definition of all parent streams.
+        var figures = this.reactiveGraph.getTopologicalSort();
+        for (var i = 0; i < figures.length; i++) {
+            // Go over each node, when tere needs to be a referral to 
+            // the node, we take a generic name based on the topological
+            // order.
+            var current = this.reactiveNodes.get(figures[i]);
+            // Check if the node depends on one or multiple other variables.
+            // When the code only depends on one stream, the new code
+            // can be appended to the earlier code without creating a new
+            // variable name.
+            // When a node has multiple dependants, the name of the node
+            // first occurring in the concatenation should be referred.
+
+            var newGenerated = current.getCode("reactiveVariable" + i);
+
+            if (newGenerated[0]) {
+                body += "\n" + newGenerated[0];
             }
+            script += "\n" + newGenerated[1];
         }
+        //var figures = this.view.getFigures().asArray();
+        //for (i = 0; i < figures.length ; i++) {
+        //    if (figures[i] instanceof draw2d.shape.frp.Input) {
+        //        var ar = figures[i].getCode(body, script);
+        //        body = ar[0];
+        //        script = ar[1];
+        //    }
+        //}
 
         // Start by making a blank page and two elements that will represent
         // the actual html code and the javascript code
@@ -168,9 +212,23 @@
     pause: function (p) {
         //this.pauser.onNext(p);
         // Pause all streams in between the nodes
-        var l = this.connections.values();
-        for (i = 0; i < l.length; i++) {
-            l[i].pause(p);
+        // Better would be to pause the streams from input nodes to
+        // other nodes, this way it is possible to rerun the events
+        // without them being dropped by the other subscriptions.
+        var l = this.inputNodes.values();
+        for (var i = 0; i < l.length; i++) {
+            var subscriptions = l[i].getSubscriptions();
+            for (var j = 0; j < subscriptions.length; j++) {
+                subscriptions[i].pause(p);
+            }
+        }
+    },
+
+    goToEvent: function (eventCounter) {
+        for (var i = 0; i < eventCounter; i++) {
+            var currentInput = this.inputs[i];
+            var source = this.reactiveNodes.get(currentInput.source);
+            source.emitEvent(currentInput.event);
         }
     }
 });

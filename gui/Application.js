@@ -20,7 +20,7 @@ VisualReact.Application = Class.extend(
     init: function () {
         this.view = new VisualReact.View("canvas");
         this.toolbar = new VisualReact.Toolbar("toolbar", this.view);
-        this.reactiveProcessor = new VisualReact.ReactiveProcessor(this.view);
+        reactiveProcessor = new VisualReact.ReactiveProcessor(this.view);
 
         // We link the application with the language we want
         reactiveLanguage = new RxJS();

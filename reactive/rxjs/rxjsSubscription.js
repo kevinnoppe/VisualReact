@@ -7,6 +7,12 @@
     // This implementation is specific for RxJS
     this.subscription = this.source.getOutput().subscribe(
         function (e) {
+            // For every output, we store the timestamp to be able to 
+            // reconstruct the execution during debugging.
+            reactiveProcessor.newInput(
+                _this.source.getId(),
+                Date.now(),
+                e);
             _this.subject.onNext(e);
         },
         function (err) {
@@ -78,6 +84,16 @@ rxjsSubscription.prototype.remove = function () {
     // Prepare everything for the removal of this subscription.
     this.subscription.dispose();
 
+};
+
+rxjsSubscription.prototype.emitEvent = function (event) {
+    console.log("Re-emit event!");
+    // Make sure to take care of the paused streams. Currently they are
+    // dropping new event so just re-executing them blindly wou have no
+    // effect at all.
+    this.output.resume();
+    this.subject.onNext(event);
+    this.output.pause();
 };
 
 //rxjsSubscription.prototype.addInternalSubscription = function (fn) {

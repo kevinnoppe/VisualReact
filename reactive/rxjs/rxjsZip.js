@@ -38,6 +38,21 @@ rxjsZip.prototype.getExecution = function (inputs, zipFunction) {
     return Rx.Observable.Empty();
 };
 
+rxjsZip.prototype.getFunctionCall = function () {
+    var inputModels = this.getInputModels();
+    // Create a list of reactive variable names from the list of models.
+    var inputNames = [];
+    for (var i = 0; i < inputModels.length; i++) {
+        inputNames[i] = inputModels[i].getVariableName();
+    }
+    // Since map is a function that is executed on one stream we only take
+    // the first name, which should always be the only one.
+    var scriptCode = "var " + this.variableName + " = Rx.Observable.zip(" +
+        inputNames.join(", ") + ", " +
+        this._controlNode.getActionFunction() + ");";
+    return ["", scriptCode];
+};
+
 //rxjsZip.prototype.addInput = function (inputList) {
 //    var l = inputList;
 //    l.push(this.mapFunction);

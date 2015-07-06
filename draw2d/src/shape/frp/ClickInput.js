@@ -50,7 +50,7 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
         // Use the new way for creating the abstract reactive nodes.
         this.controlNode = new FromEventNode(
             this, 
-            "#" + this.buttonName, 
+            this.buttonName, 
             this.eventType);
 
         // Create a new button (we listen for clicks on the button)

@@ -62,6 +62,10 @@ Subscription.prototype.remove = function () {
     this._model.remove();
 };
 
+Subscription.prototype.emitEvent = function (event) {
+    this._model.emitEvent(event);
+}
+
 Subscription.prototype.updateInput = function (updatedNode) {
     // Because this is a subscription (connection) node, the changed
     // output of the previous node should be updated, such that the

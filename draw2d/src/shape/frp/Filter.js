@@ -31,9 +31,7 @@ draw2d.shape.frp.Filter = draw2d.shape.frp.Action.extend({
         //        x === 'u';
         //};
         // Alternative filter functions:
-        this.actionFunction = function (x) {
-            return x > 3;
-        };
+        this.actionFunction = function (x) { return x > 3; };
 
         this.content = new draw2d.shape.layout.VerticalLayout();
 
@@ -58,7 +56,7 @@ draw2d.shape.frp.Filter = draw2d.shape.frp.Action.extend({
         this.actionLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
             {
                 onCommit: function(value) {
-                    _this.controlNode.setActionFunctio(eval("(" + value + ")"));
+                    _this.controlNode.setActionFunction(eval("(" + value + ")"));
                 }
             }));
         this.content.add(this.actionLabel, new draw2d.layout.locator.CenterLocator(this));

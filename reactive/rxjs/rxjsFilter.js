@@ -27,6 +27,16 @@ rxjsFilter.prototype.getExecution = function (inputs, filterFunction) {
     return Rx.Observable.empty();
 };
 
+rxjsFilter.prototype.getFunctionCall = function () {
+    var inputModels = this.getInputModels();
+    // Since map is a function that is executed on one stream we only take
+    // the first name, which should always be the only one.
+    var scriptCode = "var " + this.variableName + " = " +
+        inputModels[0].getVariableName() +
+        ".filter(" + this._controlNode.getActionFunction() + ");";
+    return ["", scriptCode];
+};
+
 //rxjsFilter.prototype.addInput = function (inputList) {
 //    var l = inputList;
 //    l.push(this.mapFunction);

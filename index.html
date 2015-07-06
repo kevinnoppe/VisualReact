@@ -518,6 +518,7 @@
         <div id="toolbar">
             <!--< style="float:right" id="pClock"> Clock? </p>-->
             <div style="float:right" id="pauser">
+                <input type="range" id="sldTimeline" disabled min="0" max="0" onchange="gogo(this.value)"/>
                 <input type="button" id="btnPause" title="Pause" onclick="pause();" value="Pause" />
             </div>
         </div>
@@ -545,10 +546,22 @@
         var paused = false;
         function pause(p) {
             paused = (p === undefined) ? !paused : p;
-            this.app.reactiveProcessor.pause(paused);
+            reactiveProcessor.pause(paused);
             var text = (paused) ? "Unpause" : "Pause";
+            jQuery('#sldTimeline').prop('disabled', !paused);
             jQuery('#btnPause').prop('value', text);
         }
+        //var sliderChanges = Rx.Observable.fromEvent(jQuery('#sldTimeline'), 'change');
+        //sliderChanges.subscribe(function (event) {
+        //    reactiveProcessor.goToEvent(event.target.value);
+        //});
+        var gogo = function (val) {
+            reactiveProcessor.goToEvent(val);
+        }
+        //var sliderSlides = Rx.Observable.fromEvent(jQuery('#sldTimeline'), 'input');
+        //sliderSlides.subscribe(function (input) {
+        //    console.log("Sliding to " + input.target.value.toString());
+        //});
     </script>
 </body>
 

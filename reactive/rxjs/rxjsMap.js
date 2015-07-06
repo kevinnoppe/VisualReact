@@ -27,6 +27,16 @@ rxjsMap.prototype.getExecution = function (inputs, mapFunction) {
     return Rx.Observable.empty();
 };
 
+rxjsMap.prototype.getFunctionCall = function () {
+    var inputModels = this.getInputModels();
+    // Since map is a function that is executed on one stream we only take
+    // the first name, which should always be the only one.
+    var scriptCode = "var " + this.variableName + " = " +
+        inputModels[0].getVariableName() +
+        ".map(" + this._controlNode.getActionFunction() + ");";
+    return ["", scriptCode];
+};
+
 //rxjsMap.prototype.addInput = function (inputList) {
 //    // Update the internal representation of the output
 

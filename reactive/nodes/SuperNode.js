@@ -8,7 +8,6 @@
     this._model = new model(this);
 
     // Create the dictionary that will hold all subscribers of this stream.
-    this.subscribers = new Dictionary();
     this.subscriptions = new Dictionary();
 
     // Create the dictionary that will hold all inputs of the stream. This
@@ -95,6 +94,10 @@ SuperNode.prototype.getSubscription = function (targetId) {
     return this.subscriptions.get(targetId);
 };
 
+SuperNode.prototype.getSubscriptions = function () {
+    return this.subscriptions.values();
+};
+
 SuperNode.prototype.getModel = function () {
     return this._model;
 };
@@ -114,7 +117,6 @@ SuperNode.prototype.updateOutput = function () {
 SuperNode.prototype.updateInput = function (updatedNode) {
     // This is only useful for the subscription nodes, otherwise
     // this will be an empty function.
-
 };
 
 /**
@@ -127,4 +129,16 @@ SuperNode.prototype.updateNode = function () {
     this._model.updateNode();
     // Afterwards, notify all subscribers the reactive node has been updated.
     this.updateOutput();
+};
+
+SuperNode.prototype.emitEvent = function (event) {
+    // Re-execute the current event on this node.
+    var subs = this.subscriptions.values();
+    for (var i = 0; i < subs.length; i++) {
+        subs[i].emitEvent(event);
+    }
+};
+
+SuperNode.prototype.getCode = function (varName) {
+    return this._model.getCode(varName);
 };

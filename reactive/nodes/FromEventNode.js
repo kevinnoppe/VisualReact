@@ -4,7 +4,7 @@
 
     // Set all necessary information necessary for this kind of reactive
     // function.
-    this.eventTarget = target; // Already including the jQuery tags.
+    this.eventTarget = target;
     this.eventName = name;
 };
 

@@ -8,18 +8,17 @@
     this._model = new model(this);
 
     // Create the dictionary that will hold all subscribers of this stream.
+    // Each subscriber is a Subscription object.
     this.subscriptions = new Dictionary();
 
     // Create the dictionary that will hold all inputs of the stream. This
     // can be one or multiple, depending on the function.
+    // Each input is a Subscription object.
     this.inputs = new Dictionary();
 
     // The stream to which this node is currently subscribed. Can be
     // null in the beginning since nodes are created without dependencies.
     this.subscription = null;
-
-    // The stream currently represented by this node.
-    //this.output = null;
 };
 
 SuperNode.prototype.getId = function () {
@@ -34,7 +33,7 @@ SuperNode.prototype.addInput = function (subscriptionControl) {
 
     //TODO Maybe filter this step out, ie. make sure the model only
     // needs to be updated, that it takes the necessary values itself.
-    this._model.addInput(subscriptionControl.getModel());
+    this.getModel().addInput(subscriptionControl.getModel());
 
     this.updateNode();
 };
@@ -44,7 +43,7 @@ SuperNode.prototype.removeInput = function (subscriptionControl) {
     var sourceId = subscriptionControl.getSource().getId();
     this.inputs.remove(sourceId);
 
-    this._model.removeInput(subscriptionControl.getModel());
+    this.getModel().removeInput(subscriptionControl.getModel());
 
     this.updateNode();
 };
@@ -73,8 +72,8 @@ SuperNode.prototype.subscribe = function (subscriptionControl) {
     // in the abstraction the subscriber is only saved, we do however
     // call the model because other languages might implement this
     // in a different way.
-    this._model.subscribe(subscriptionControl.getModel());
-
+    this.getModel().subscribe(subscriptionControl.getModel());
+    this.updateNode();
 };
 
 SuperNode.prototype.removeSubscription = function (subscriptionControl) {
@@ -83,7 +82,7 @@ SuperNode.prototype.removeSubscription = function (subscriptionControl) {
     this.subscriptions.remove(subscriberId);
 
     // Also call the model to make sure this can be used by other langauges.
-    this._model.removeSubscription(subscriptionControl.getModel());
+    this.getModel().removeSubscription(subscriptionControl.getModel());
 };
 
 /**
@@ -104,7 +103,7 @@ SuperNode.prototype.getModel = function () {
 
 // Get the output of this reactive node. 
 SuperNode.prototype.getOutput = function () {
-    return this._model.getOutput();
+    return this.getModel().getOutput();
 };
 
 SuperNode.prototype.updateOutput = function () {
@@ -114,11 +113,6 @@ SuperNode.prototype.updateOutput = function () {
     }
 };
 
-SuperNode.prototype.updateInput = function (updatedNode) {
-    // This is only useful for the subscription nodes, otherwise
-    // this will be an empty function.
-};
-
 /**
  * Notify the controller that something in the node has changed. This
  * can be the reactive function or some reactive value and thus the
@@ -126,7 +120,7 @@ SuperNode.prototype.updateInput = function (updatedNode) {
  */
 SuperNode.prototype.updateNode = function () {
     // First refresh the internal representation of the reactive function.
-    this._model.updateNode();
+    this.getModel().updateNode();
     // Afterwards, notify all subscribers the reactive node has been updated.
     this.updateOutput();
 };
@@ -140,5 +134,5 @@ SuperNode.prototype.emitEvent = function (event) {
 };
 
 SuperNode.prototype.getCode = function (varName) {
-    return this._model.getCode(varName);
+    return this.getModel().getCode(varName);
 };

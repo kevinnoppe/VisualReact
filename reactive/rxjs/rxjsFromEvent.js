@@ -16,16 +16,16 @@ rxjsFromEvent.prototype = Object.create(rxjsFunction.prototype);
 rxjsFromEvent.prototype.constructor = rxjsFromEvent;
 
 rxjsFromEvent.prototype.getEventTarget = function () {
-    return this._controlNode.getEventTarget();
+    return this.getControlNode().getEventTarget();
 };
 
 rxjsFromEvent.prototype.getEventName = function () {
-    return this._controlNode.getEventName();
+    return this.getControlNode().getEventName();
 }
 
 rxjsFromEvent.prototype.getExecution = function (eventTarget, eventName) {
-    eventTarget = eventTarget || this.getEventTarget();
-    eventName = eventName || this.getEventName();
+    var eventTarget = eventTarget || this.getEventTarget();
+    var eventName = eventName || this.getEventName();
     return Rx.Observable.fromEvent(
         jQuery("#" + eventTarget.toString()),
         eventName.toString());
@@ -35,8 +35,8 @@ rxjsFromEvent.prototype.getFunctionCall = function () {
     // For the function call, the element and the event type are
     // needed. Instead of expecting these of the caller, the view
     // is used to retrieve these values.
-    var eventTarget = this._controlNode.getEventTarget();
-    var eventName = this._controlNode.getEventName();
+    var eventTarget = this.getEventTarget();
+    var eventName = this.getEventName();
     // Make sure the strings are created correctly, using the extra
     // apostrophe where necessary.
     var htmlCode = "<input type='button' id='" + eventTarget +

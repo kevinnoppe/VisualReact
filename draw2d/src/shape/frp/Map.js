@@ -24,24 +24,8 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
 
         //this.subscriberFunction = "(function (y) { console.log(\"Random: \" + y); })";
         this.actionFunction = function (x) { return Math.ceil(Math.random() * 5); };
-        // Alternate functions
-        // Random number 1 to 5
-        //(function (x) { return Math.ceil(Math.random() * 5); })
 
         this.content = new draw2d.shape.layout.VerticalLayout();
-
-        //this.typeLabel = new draw2d.shape.basic.Label({
-        //    text: this.subscriberFunction,
-        //    color: this.darkerBgColor,
-        //    bgColor: null
-        //});
-        //this.typeLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
-        //    {
-        //        onCommit: function (value) {
-        //            _this.actionNode.setSubscribeFunction(value);
-        //        }
-        //    }));
-        //this.content.add(this.typeLabel, new draw2d.layout.locator.CenterLocator(this));
 
         this.actionLabel = new draw2d.shape.basic.Label({
             text: this.actionFunction,
@@ -55,7 +39,7 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
                     // When setting the reactive function, we want to make sure
                     // that the javascript has been evaluated, by doing this
                     // functions can be created for use in reactive nodes.
-                    _this.controlNode.setActionFunction(eval("(" + value + ")"));
+                    _this._controlNode.setActionFunction(eval("(" + value + ")"));
                 }
             }));
         this.content.add(this.actionLabel, new draw2d.layout.locator.CenterLocator(this));
@@ -71,7 +55,7 @@ draw2d.shape.frp.Map = draw2d.shape.frp.Action.extend({
         //this.actionNode = new ActionNode(this, this.action, this.actionFunction);
         //this.actionNode.setSubscribeFunction(this.subscriberFunction);
 
-        this.controlNode = new MapNode(
+        this._controlNode = new MapNode(
             this,
             this.actionFunction);
     }

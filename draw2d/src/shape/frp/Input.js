@@ -48,26 +48,13 @@ draw2d.shape.frp.Input = draw2d.shape.basic.Trapezoid.extend({
             new draw2d.policy.figure.GlowSelectionFeedbackPolicy());
     },
 
-    getReactiveOutput: function (targetId, target) {
-        //return this.inputNode.getReactiveOutput(targetId, target);
-    },
+    //getReactiveOutput: function (targetId, target) {
+    //    //return this.inputNode.getReactiveOutput(targetId, target);
+    //},
 
-    removeReactiveSubscriber: function (subscriber) {
-        //this.inputNode.removeReactiveSubscriber(subscriber);
-    },
-
-    setDebugger: function (debug) {
-        //this.inputNode.setDebugger(debug);
-    },
-
-    getCode: function () {
-    },
-
-    /**
-     * Code that needs to be executed when removing the node.
-     * Should be implemented by the necessary nodes.
-     */
-    remove: function () { },
+    //removeReactiveSubscriber: function (subscriber) {
+    //    //this.inputNode.removeReactiveSubscriber(subscriber);
+    //},
 
     /**
      * Get the reactive type of this figure, used to create the model
@@ -79,7 +66,13 @@ draw2d.shape.frp.Input = draw2d.shape.basic.Trapezoid.extend({
     },
 
     getControlNode: function () {
-        return this.controlNode;
-    }
+        return this._controlNode;
+    },
+
+    /**
+     * Code that needs to be executed when removing the node.
+     * Should be implemented by the necessary nodes.
+     */
+    remove: function () { }
        
 });

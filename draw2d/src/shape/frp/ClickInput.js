@@ -32,13 +32,17 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
         this._super(attr, setter, getter);
 
         // This function creates the reactive click event.
-        this.on('click', function (event) {
-            //_this.inputNode.output.onNext(event);
-        });
+        //this.on('click', function (event) {
+        //    _this.inputNode.output.onNext(event);
+        //});
 
         this.vert = new draw2d.shape.layout.VerticalLayout();
 
-        this.typeLabel = new draw2d.shape.basic.Label({ text: "Click me for events", color: this.darkerBgColor, bgColor: null });
+        this.typeLabel = new draw2d.shape.basic.Label({
+            text: "Click the button for events",
+            color: this.darkerBgColor,
+            bgColor: null
+        });
         this.vert.add(this.typeLabel);
 
         this.add(this.vert, new draw2d.layout.locator.CenterLocator());
@@ -48,7 +52,7 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
         //this.inputNode = new InputNode(this).initFromSubject(this.subject);
 
         // Use the new way for creating the abstract reactive nodes.
-        this.controlNode = new FromEventNode(
+        this._controlNode = new FromEventNode(
             this, 
             this.buttonName, 
             this.eventType);
@@ -56,15 +60,14 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
         // Create a new button (we listen for clicks on the button)
         var $btnReactiveButton = jQuery('<button/>', {
             id: this.buttonName,
-            text: "Input button",
-            click: function (event) {
-                //_this.inputNode.output.onNext(event);
-                //_this.inputNode.newEvent(event);
-            }
+            text: "Input button " + this.getId().substring(0,3)
         });
         jQuery('#reactive-html-content').append($btnReactiveButton);
     },
 
+    /**
+     * Code that needs to be executed when removing the node.
+     */
     remove: function () {
         jQuery('#' + this.buttonName).remove();
     },
@@ -74,27 +77,27 @@ draw2d.shape.frp.ClickInput = draw2d.shape.frp.Input.extend({
      * 
      * @returns The name of the element being referenced by the reactive function.
      */
-    getElement: function () {
-        return this.buttonName;
-    },
+    //getElement: function () {
+    //    return this.buttonName;
+    //},
 
     /**
      * Get the event the reactive function is listening to
      * 
      * @returns The name of the event being listened to by the reactive function.
      */
-    getEvent: function () {
-        return this.eventType;
-    },
+    //getEvent: function () {
+    //    return this.eventType;
+    //},
 
-    getCode: function (body, script) {
-        // Prepare the necessary elements for the code generation
-        var extraScript = this.controlNode.getCode(this.buttonName, this.eventType);
-        var extraBody = "<input type='button' id='" +
-            this.buttonName +
-            "' value='Test button'></input>";
-        body += extraBody;
-        script += extraScript;
-        return [body, script];
-    }
+    //getCode: function (body, script) {
+    //    // Prepare the necessary elements for the code generation
+    //    var extraScript = this.controlNode.getCode(this.buttonName, this.eventType);
+    //    var extraBody = "<input type='button' id='" +
+    //        this.buttonName +
+    //        "' value='Test button'></input>";
+    //    body += extraBody;
+    //    script += extraScript;
+    //    return [body, script];
+    //}
 });

@@ -35,19 +35,6 @@ draw2d.shape.frp.Zip = draw2d.shape.frp.Action.extend({
 
         this.content = new draw2d.shape.layout.VerticalLayout();
 
-        //this.typeLabel = new draw2d.shape.basic.Label({
-        //    text: this.subscribeFunction,
-        //    color: this.darkerBgColor,
-        //    bgColor: null
-        //});
-        //this.typeLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
-        //    {
-        //        onCommit: function (value) {
-        //            _this.actionNode.setSubscribeFunction(value);
-        //        }
-        //    }));
-        //this.content.add(this.typeLabel, new draw2d.layout.locator.CenterLocator(this));
-
         this.actionLabel = new draw2d.shape.basic.Label({
             text: this.actionFunction,
             color: this.darkerBgColor,
@@ -56,7 +43,7 @@ draw2d.shape.frp.Zip = draw2d.shape.frp.Action.extend({
         this.actionLabel.installEditor(new draw2d.ui.LabelInplaceEditor(
             {
                 onCommit: function(value) {
-                    _this.controlNode.setActionFunction(eval("(" + value + ")"));
+                    _this._controlNode.setActionFunction(eval("(" + value + ")"));
                 }
             }));
         this.content.add(this.actionLabel, new draw2d.layout.locator.CenterLocator(this));
@@ -72,7 +59,7 @@ draw2d.shape.frp.Zip = draw2d.shape.frp.Action.extend({
         //this.actionNode = new ActionNode(this, this.action, this.actionFunction);
         //this.actionNode.setSubscribeFunction(this.subscribeFunction);
 
-        this.controlNode = new ZipNode(
+        this._controlNode = new ZipNode(
             this,
             this.actionFunction);
     }

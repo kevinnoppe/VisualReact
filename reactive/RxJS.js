@@ -10,6 +10,8 @@
     // functions for recreating it.
     this.reactiveObjects[ReactiveLanguage.empty] = rxjsEmpty;
     this.reactiveObjects[ReactiveLanguage.map] = rxjsMap;
+    this.reactiveObjects[ReactiveLanguage.flatMap] = rxjsFlatMap;
+    this.reactiveObjects[ReactiveLanguage.scan] = rxjsScan;
     this.reactiveObjects[ReactiveLanguage.filter] = rxjsFilter;
     this.reactiveObjects[ReactiveLanguage.zip] = rxjsZip;
     this.reactiveObjects[ReactiveLanguage.fromEvent] = rxjsFromEvent;
@@ -38,40 +40,40 @@
     //    return "Rx.Observable.fromEvent(" + element + ", " + event + ")";
     //};
 
-    nodeExecution[ReactiveLanguage.empty] = function (inputList, argumentList) {
-        // When an empty stream is created, the input list and the arguments
-        // don't matter, the empty stream is just created.
-        return functions[ReactiveLanguage.empty]();
-    };
-    nodeExecution[ReactiveLanguage.map] = function (inputList, argumentList) {
-        // For the map we expect the input list to have only one element
-        // because the map function can only be executed on one stream.
-        // When multiple map functions are needed, multiple map nodes 
-        // should be created.
-        if (inputList.length === 1) {
-            // The map function should be executed with the necessary arguments.
-            // The first argument is the 'this', namely the input stream.
-            // The rest of the arguments is then applied.
-            return functions[ReactiveLanguage.map].apply(inputList[0], argumentList);
-        }
-        // Should we return something otherwise? This would mean that something
-        // is wrong with the number of input streams, which should not be the case
-        // TODO Change this such that we just assume that only one input steam
-        // will be provided.
-    };
-    nodeExecution[ReactiveLanguage.filter] = function (inputList, argumentList) {
-        // Same implementation as map
-        if (inputList.length === 1) {
-            return functions[ReactiveLanguage.filter].apply(inputList[0], argumentList);
-        }
-    };
-    nodeExecution[ReactiveLanguage.zip] = function (inputList, argumentList) {
-        // When using zip, this is normally done with the Rx.Observable object
-        // as 'this' but internally this is replaced by the first stream of the
-        // input list. We thus call it directly on the first element of the list.
-        var args = inputList.concat(argumentList);
-        return functions[ReactiveLanguage.zip].apply(args[0], args);
-    };
+    //nodeExecution[ReactiveLanguage.empty] = function (inputList, argumentList) {
+    //    // When an empty stream is created, the input list and the arguments
+    //    // don't matter, the empty stream is just created.
+    //    return functions[ReactiveLanguage.empty]();
+    //};
+    //nodeExecution[ReactiveLanguage.map] = function (inputList, argumentList) {
+    //    // For the map we expect the input list to have only one element
+    //    // because the map function can only be executed on one stream.
+    //    // When multiple map functions are needed, multiple map nodes 
+    //    // should be created.
+    //    if (inputList.length === 1) {
+    //        // The map function should be executed with the necessary arguments.
+    //        // The first argument is the 'this', namely the input stream.
+    //        // The rest of the arguments is then applied.
+    //        return functions[ReactiveLanguage.map].apply(inputList[0], argumentList);
+    //    }
+    //    // Should we return something otherwise? This would mean that something
+    //    // is wrong with the number of input streams, which should not be the case
+    //    // TODO Change this such that we just assume that only one input steam
+    //    // will be provided.
+    //};
+    //nodeExecution[ReactiveLanguage.filter] = function (inputList, argumentList) {
+    //    // Same implementation as map
+    //    if (inputList.length === 1) {
+    //        return functions[ReactiveLanguage.filter].apply(inputList[0], argumentList);
+    //    }
+    //};
+    //nodeExecution[ReactiveLanguage.zip] = function (inputList, argumentList) {
+    //    // When using zip, this is normally done with the Rx.Observable object
+    //    // as 'this' but internally this is replaced by the first stream of the
+    //    // input list. We thus call it directly on the first element of the list.
+    //    var args = inputList.concat(argumentList);
+    //    return functions[ReactiveLanguage.zip].apply(args[0], args);
+    //};
 
     //models[ReactiveLanguage.fromEvent] = new fromEvent(figure);
 };

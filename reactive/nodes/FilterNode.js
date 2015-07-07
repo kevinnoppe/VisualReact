@@ -1,18 +1,10 @@
 ﻿var FilterNode = function (figure, filterFunction) {
 
-    SuperNode.call(this, figure);
-
-    this.actionFunction = filterFunction;
+    ActionNode.call(this, figure, filterFunction);
 };
 
-FilterNode.prototype = Object.create(SuperNode.prototype);
+FilterNode.prototype = Object.create(ActionNode.prototype);
 FilterNode.prototype.constructor = FilterNode;
-
-FilterNode.prototype.getExecution = function () {
-    // Since the execution of a map stream is based on the map function,
-    // it is passed along as the argument of the function call.
-    return this._model.getExecution(this.actionFunction);
-};
 
 // Overwrite the addInput function of SuperNode because other rules
 // apply for this kind of node.
@@ -35,13 +27,4 @@ FilterNode.prototype.addInput = function (subscriptionControl) {
     // Updating the output also means notifying the subscribing
     // nodes as well;
     this.updateNode();
-};
-
-FilterNode.prototype.setActionFunction = function (actionFunction) {
-    this.actionFunction = actionFunction;
-};
-
-//TODO Move level up
-FilterNode.prototype.getActionFunction = function () {
-    return this.actionFunction;
 };

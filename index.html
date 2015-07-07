@@ -421,12 +421,14 @@
     <script src="./draw2d/src/shape/pert/Activity.js"> </script>
     <script src="./draw2d/src/shape/pert/Start.js"> </script>
     <script src="./draw2d/src/shape/frp/Input.js"> </script>
-    <script src="./draw2d/src/shape/frp/BasicInput.js"> </script>
+    <script src="./draw2d/src/shape/frp/TimerInput.js"> </script>
     <script src="./draw2d/src/shape/frp/ClickInput.js"> </script>
     <script src="./draw2d/src/shape/frp/KeyboardInput.js"> </script>
     <script src="./draw2d/src/shape/frp/Action.js"> </script>
     <script src="./draw2d/src/shape/frp/Filter.js"> </script>
     <script src="./draw2d/src/shape/frp/Map.js"> </script>
+    <script src="./draw2d/src/shape/frp/FlatMap.js"> </script>
+    <script src="./draw2d/src/shape/frp/Scan.js"> </script>
     <script src="./draw2d/src/shape/frp/Zip.js"> </script>
     <script src="./draw2d/src/shape/frp/Output.js"> </script>
     <script src="./draw2d/src/shape/frp/ConsoleOutput.js"> </script>
@@ -466,12 +468,11 @@
 
     <script src="./reactive/ReactiveProcessor.js"></script>
 
-    <script src="./reactive/nodes/ReactiveNode.js"></script>
-    <script src="./reactive/nodes/ActionNode.js"></script>
-    <script src="./reactive/nodes/InputNode.js"></script>
     <script src="./reactive/nodes/SuperNode.js"></script>
     <script src="./reactive/nodes/FromEventNode.js"></script>
+    <script src="./reactive/nodes/ActionNode.js"></script>
     <script src="./reactive/nodes/MapNode.js"></script>
+    <script src="./reactive/nodes/ScanNode.js"></script>
     <script src="./reactive/nodes/FilterNode.js"></script>
     <script src="./reactive/nodes/TimerNode.js"></script>
     <script src="./reactive/nodes/ZipNode.js"></script>
@@ -483,6 +484,8 @@
     <script src="./reactive/rxjs/rxjsEmpty.js"></script>
     <script src="./reactive/rxjs/rxjsFromEvent.js"></script>
     <script src="./reactive/rxjs/rxjsTimer.js"></script>
+    <script src="./reactive/rxjs/rxjsScan.js"></script>
+    <script src="./reactive/rxjs/rxjsFlatMap.js"></script>
     <script src="./reactive/rxjs/rxjsMap.js"></script>
     <script src="./reactive/rxjs/rxjsFilter.js"></script>
     <script src="./reactive/rxjs/rxjsZip.js"></script>
@@ -518,7 +521,7 @@
         <div id="toolbar">
             <!--< style="float:right" id="pClock"> Clock? </p>-->
             <div style="float:right" id="pauser">
-                <input type="range" id="sldTimeline" disabled min="0" max="0" onchange="gogo(this.value)"/>
+                <input type="range" id="sldTimeline" disabled min="0" max="0" onchange="gogo(this.value)" />
                 <input type="button" id="btnPause" title="Pause" onclick="pause();" value="Pause" />
             </div>
         </div>
@@ -528,15 +531,16 @@
     <div id="navigation" class="">
         <div data-shape="draw2d.shape.frp.ClickInput" class="palette_node_element draw2d_droppable block">Click input node</div>
         <div data-shape="draw2d.shape.frp.KeyboardInput" class="palette_node_element draw2d_droppable block">Keyboard input node</div>
-        <div data-shape="draw2d.shape.frp.BasicInput" class="palette_node_element draw2d_droppable block">Timer input node</div>
-        <div data-shape="draw2d.shape.frp.Filter" class="palette_node_element draw2d_droppable block">Filter node</div>
+        <div data-shape="draw2d.shape.frp.TimerInput" class="palette_node_element draw2d_droppable block">Timer input node</div>
         <div data-shape="draw2d.shape.frp.Map" class="palette_node_element draw2d_droppable block">Map node</div>
+        <div data-shape="draw2d.shape.frp.Scan" class="palette_node_element draw2d_droppable block">Scan node</div>
+        <div data-shape="draw2d.shape.frp.Filter" class="palette_node_element draw2d_droppable block">Filter node</div>
         <div data-shape="draw2d.shape.frp.Zip" class="palette_node_element draw2d_droppable block">Zip node</div>
         <div data-shape="draw2d.shape.frp.ConsoleOutput" class="palette_node_element draw2d_droppable block">Output node</div>
     </div>
     <div id="reactive-html" class="">
         <div id="reactive-html-content" class="">
-            
+
         </div>
         <div id="reactive-html-code" class="">
             <p>The generated reactive code.</p>

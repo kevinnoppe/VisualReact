@@ -19,11 +19,11 @@ TimerNode.prototype.getExecution = function () {
     return this._model.getExecution(this.timerDue, this.timerInterval);
     };
 
-TimerNode.prototype.getTimerDue = function () {
+TimerNode.prototype.getDueTime = function () {
     return this.timerDue;
 };
 
-TimerNode.prototype.getTimerInterval = function () {
+TimerNode.prototype.getIntervalTime = function () {
     return this.timerInterval;
 };
 
@@ -39,4 +39,4 @@ TimerNode.prototype.setDueTime = function (due) {
 TimerNode.prototype.setIntervalTime = function (interval) {
     this.timerInterval = interval;
     this.updateNode();
-}
+};

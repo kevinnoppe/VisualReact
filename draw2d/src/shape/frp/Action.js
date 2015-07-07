@@ -53,28 +53,28 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
     },
 
     setReactiveInput: function (observableId, observable, pauser) {
-        this.actionNode.setReactiveInput(observableId, observable, pauser);
+        //this.actionNode.setReactiveInput(observableId, observable, pauser);
     },
 
     setInput: function (observable) {
-        this.actionNode.setInput(observable);
+        //this.actionNode.setInput(observable);
     },
 
     removeReactiveInput: function (inputId) {
-        this.actionNode.removeReactiveInput(inputId);
+        //this.actionNode.removeReactiveInput(inputId);
     },
 
     getReactiveOutput: function (targetId, target) {
-        var o = this.reactiveFunction;
-        return this.actionNode.getReactiveOutput(targetId, target);
+        //var o = this.reactiveFunction;
+        //return this.actionNode.getReactiveOutput(targetId, target);
     },
 
     removeReactiveSubscriber: function (subscriberId) {
-        this.actionNode.removeReactiveSubscriber(subscriberId);
+        //this.actionNode.removeReactiveSubscriber(subscriberId);
     },
 
     getCode: function (varName) {
-        return this.actionNode.getCode(varName);
+        //return this.actionNode.getCode(varName);
     },
 
     getReactiveType: function () {
@@ -82,7 +82,7 @@ draw2d.shape.frp.Action = draw2d.shape.basic.Hexagon.extend({
     },
 
     getControlNode: function () {
-        return this.controlNode;
+        return this._controlNode;
     },
 
     /**

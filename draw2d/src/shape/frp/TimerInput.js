@@ -1,11 +1,11 @@
 /**
- * @class draw2d.shape.frp.BasicInput
+ * @class draw2d.shape.frp.TimerInput
  * 
  * @extends draw2d.shape.frp.Input
  */
-draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
+draw2d.shape.frp.TimerInput = draw2d.shape.frp.Input.extend({
 
-    NAME: "draw2d.shape.frp.BasicInput",
+    NAME: "draw2d.shape.frp.TimerInput",
 
     /**
      * @constructor
@@ -36,7 +36,7 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
         });
         this.lblDueTime.installEditor(new draw2d.ui.LabelInplaceEditor({
             onCommit: function (value) {
-                _this.setDueTime(value);
+                _this._controlNode.setDueTime(value);
             }
         }));
         this.vert.add(this.lblDueTime);
@@ -48,7 +48,7 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
         });
         this.lblIntervalTime.installEditor(new draw2d.ui.LabelInplaceEditor({
             onCommit: function (value) {
-                _this.setIntervalTime(value);
+                _this._controlNode.setIntervalTime(value);
             }
         }));
         this.vert.add(this.lblIntervalTime);
@@ -57,32 +57,11 @@ draw2d.shape.frp.BasicInput = draw2d.shape.frp.Input.extend({
 
         this.outputPort = this.createPort("output", new draw2d.layout.locator.BottomLocator());
 
-        //this.inputNode = new InputNode(this).initFromFunction(this.executableReactiveFunction);
-        this.controlNode = new TimerNode(
+        this._controlNode = new TimerNode(
             this,
             this.dueTime,
             this.intervalTime);
 
-    },
-
-    getCode: function(body, script) {
-        var extraScript = this.inputNode.getCode(this.buttonName, this.eventType);
-        script += extraScript;
-        return [body, script];
-    },
-
-    setDueTime: function (dueTime) {
-        if (this.dueTime !== dueTime) {
-            this.dueTime = dueTime;
-            this.controlNode.setDueTime(this.dueTime);
-        }
-    },
-
-    setIntervalTime: function (intervalTime) {
-        if (this.intervalTime !== intervalTime) {
-            this.intervalTime = intervalTime;
-            this.controlNode.setIntervalTime(this.intervalTime);
-        }
     }
        
 });

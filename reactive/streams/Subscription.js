@@ -1,7 +1,7 @@
 ﻿var Subscription = function (subscriptionId, sourceControl, subscriberControl) {
     this.source = sourceControl;
     this.subscriber = subscriberControl;
-    this.id = subscriptionId;
+    this.subscriptionId = subscriptionId;
 
     // First create the actual subscription, based on the host language.
     var subscriptionModel = reactiveLanguage.getModelFromType(
@@ -15,6 +15,7 @@
     // the connection, so it makes sense to allow the abstraction to control
     // how a new connection is made!
     this._model = new subscriptionModel(
+        this,
         this.source.getModel(), 
         this.subscriber.getModel());
 
@@ -39,17 +40,17 @@ Subscription.prototype.getId = function () {
 };
 
 Subscription.prototype.getOutput = function () {
-    return this._model.getOutput();
+    return this.getModel().getOutput();
 };
 
 Subscription.prototype.pause = function (paused) {
-    return this._model.pause(paused);
+    return this.getModel().pause(paused);
 };
 
 // When the subscription is being disposed of, make sure all cleanup
 // is done as well.
 Subscription.prototype.dispose = function () {
-    return this._model.dispose();
+    return this.getModel().dispose();
 };
 
 Subscription.prototype.remove = function () {
@@ -59,18 +60,18 @@ Subscription.prototype.remove = function () {
     // First, make sure that the subscription is disposed in the subscriber.
     this.subscriber.removeInput(this);
 
-    this._model.remove();
+    this.getModel().remove();
 };
 
 Subscription.prototype.emitEvent = function (event) {
-    this._model.emitEvent(event);
+    this.getModel().emitEvent(event);
 }
 
 Subscription.prototype.updateInput = function (updatedNode) {
     // Because this is a subscription (connection) node, the changed
     // output of the previous node should be updated, such that the
     // following nodes continue receiving the right events.
-    this._model.updateInput(updatedNode);
+    this.getModel().updateInput(updatedNode);
 };
 
 Subscription.prototype.getModel = function () {

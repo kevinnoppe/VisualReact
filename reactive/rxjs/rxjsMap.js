@@ -4,6 +4,7 @@
 
     //this.reactiveFunction = Rx.Observable.prototype.map;
     this.functionCall = "map";
+    this.currentSubscription = null;
 };
 
 rxjsMap.prototype = Object.create(rxjsFunction.prototype);
@@ -12,14 +13,18 @@ rxjsMap.prototype.constructor = rxjsMap;
 rxjsMap.prototype.getExecution = function (inputs, mapFunction) {
     // Get the necessary arguments to create the execution of the
     // reactive node.
-    inputs = inputs || this._controlNode.getInputs();
-    mapFunction = mapFunction || this._controlNode.getActionFunction();
+    var inputs = inputs || this.getControlNode().getInputs();
+    var mapFunction = mapFunction || this.getControlNode().getActionFunction();
     if (inputs.length === 1) {
         var input = inputs[0].getOutput();
+        // Be sure to reset the original internal subscription
+        if (this.currentSubscription !== null) {
+            this.currentSubscription.dispose();
+        }
         this.output = Rx.Observable.prototype.map.apply(
             input,
             [mapFunction]).share();
-        this.output.subscribe(function (event) {
+        this.currentSubscription = this.output.subscribe(function (event) {
             console.log("After map: " + event.toString());
         });
         return this.output;
@@ -33,15 +38,6 @@ rxjsMap.prototype.getFunctionCall = function () {
     // the first name, which should always be the only one.
     var scriptCode = "var " + this.variableName + " = " +
         inputModels[0].getVariableName() +
-        ".map(" + this._controlNode.getActionFunction() + ");";
+        ".map(" + this.getControlNode().getActionFunction() + ");";
     return ["", scriptCode];
 };
-
-//rxjsMap.prototype.addInput = function (inputList) {
-//    // Update the internal representation of the output
-
-//    l.push(this.mapFunction);
-//    // Set the output of this node to be the resulting stream of this
-//    // function.
-//    this.output = this.reactiveFunction.apply(l.shift(), l);;
-//};

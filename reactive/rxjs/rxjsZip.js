@@ -12,8 +12,8 @@ rxjsZip.prototype.constructor = rxjsZip;
 rxjsZip.prototype.getExecution = function (inputs, zipFunction) {
     // Get the necessary arguments to create the execution of the
     // reactive node.
-    inputs = inputs || this._controlNode.getInputs();
-    zipFunction = zipFunction || this._controlNode.getActionFunction();
+    inputs = inputs || this.getControlNode().getInputs();
+    zipFunction = zipFunction || this.getControlNode().getActionFunction();
     if (inputs.length > 0) {
         // First create the list of actual inputs
         var inputList = [];
@@ -49,14 +49,6 @@ rxjsZip.prototype.getFunctionCall = function () {
     // the first name, which should always be the only one.
     var scriptCode = "var " + this.variableName + " = Rx.Observable.zip(" +
         inputNames.join(", ") + ", " +
-        this._controlNode.getActionFunction() + ");";
+        this.getControlNode().getActionFunction() + ");";
     return ["", scriptCode];
 };
-
-//rxjsZip.prototype.addInput = function (inputList) {
-//    var l = inputList;
-//    l.push(this.mapFunction);
-//    // Set the output of this node to be the resulting stream of this
-//    // function.
-//    this.output = this.reactiveFunction.apply(l.shift(), l);;
-//};

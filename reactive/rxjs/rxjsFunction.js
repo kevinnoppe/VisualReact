@@ -57,7 +57,7 @@ rxjsFunction.prototype.updateNode = function () {
 };
 
 rxjsFunction.prototype.getId = function () {
-    return this._controlNode.getId();
+    return this.getControlNode().getId();
 };
 
 rxjsFunction.prototype.getControlNode = function () {
@@ -87,7 +87,7 @@ rxjsFunction.prototype.getVariableName = function () {
 
 // Get the 
 rxjsFunction.prototype.getInputModels = function () {
-    var inputs = this._controlNode.getInputs();
+    var inputs = this.getControlNode().getInputs();
     // The is a list of subscriptions so we get the subscriber of each
     // subscription and take the model of that.
     var models = [];

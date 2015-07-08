@@ -5,24 +5,33 @@ VisualReact.ReactiveProcessor = Class.extend({
 
     init: function (view) {
         this.view = view;
-        //this.Rx = reactiveExtentions;
         // Register this class as a listener for the CommandStack.
         // This way we can update the reactive part of the application
-        this.reactiveGraph = new reactiveGraph();
-        // The global stream that allows to pause and resume the other streams.
-        this.pauser = new Rx.Subject();
+        view.commandStack.addEventListener(this);
+
+        // Create the reactive graph that represents the reactive application.
+        this.reactiveGraph = new ReactiveGraph();
+
+        // The variable that represents the current state of the reactive
+        // application, is it running or is it paused.
+        this.isPaused = false;
 
         // Create a global "listener" that stores a list of all inputs in the
         // application, this way the application can be "replayed".
         this.inputs = [];
 
+        // Store "lists" of the nodes and connections, to be used for 
+        // administrative purposes.
         this.reactiveNodes = new Dictionary();
         this.inputNodes = new Dictionary();
         this.connections = new Dictionary();
 
-        view.commandStack.addEventListener(this);
     },
 
+    /**
+     * Store a new input, every event emitted by an input node is stored
+     * as an input event that can be replayed if necessary.
+     */
     newInput: function (sourceId, timestamp, event) {
         // Check if the source is an input node, currently we only
         // want to catch these.
@@ -45,37 +54,14 @@ VisualReact.ReactiveProcessor = Class.extend({
         if (event.getDetails() === draw2d.command.CommandStack.POST_EXECUTE) {
             switch (event.getCommand().getLabel()) {
                 case draw2d.Configuration.i18n.command.addShape:
-                    // When creating a new input shape, add the possibility
-                    // to notify the main mechanism that stores all inputs.
-                    // This should be used to recreate the execution during
-                    // debugging.
-                    if (event.getCommand().getFigure() instanceof draw2d.shape.frp.Input) {
-                        event.getCommand().getFigure().setDebugger(this);
-                    }
                     this.createNode(event.getCommand().getFigure());
                     break;
                 case draw2d.Configuration.i18n.command.connectPorts:
                     if (event.getCommand() instanceof draw2d.command.CommandConnect) {
-                        this.connect(
+                        this.connectNodes(
+                            event.getCommand().getConnection().getId(),
                             event.getCommand().getSource().getParent(),
-                            event.getCommand().getTarget().getParent(),
-                            event.getCommand().getConnection().getId());
-                        this.reactiveGraph.addEdge(
-                            event.getCommand().getSource().getParent().getId(),
-                            event.getCommand().getTarget().getParent().getId());
-                        try {
-                            console.log(this.reactiveGraph.getTopologicalSort());
-                        }
-                        catch (e) {
-                            console.log(e.message);
-
-                        }
-                        pause(false);
-                        this.createCode();
-                        
-                        //inputFunction = event.command.source.parent.getReactiveFunction();
-                        //source = event.getCommand().getSource().getParent().getReactiveFunction();
-                        //event.getCommand().getTarget().getParent().setReactiveInput(inputFunction);
+                            event.getCommand().getTarget().getParent());
                     }
                     break;
                 case draw2d.Configuration.i18n.command.deleteShape:
@@ -87,8 +73,7 @@ VisualReact.ReactiveProcessor = Class.extend({
                     //alert(event.getCommand());
                     break;
             }
-            //createCode();
-        } else {
+        } else if (event.getDetails() === draw2d.command.CommandStack.PRE_EXECUTE) {
             switch (event.getCommand().getLabel()) {
                 case draw2d.Configuration.i18n.command.deleteShape:
                     if (event.getCommand().figure instanceof draw2d.Connection) {
@@ -96,10 +81,11 @@ VisualReact.ReactiveProcessor = Class.extend({
                         console.log("Removing connection");
                         this.disconnect(
                             connection.getId());
-                            //connection.getSource().getParent(),
-                            //connection.getTarget().getParent());
+                        //connection.getSource().getParent(),
+                        //connection.getTarget().getParent());
                     } else {
                         var connections = event.getCommand().figure.getConnections()
+                        var id = event.getCommand().figure.getId();
                         console.log("Removing figure");
                         event.getCommand().figure.remove();
                         for (c = 0; c < connections.getSize() ; c++) {
@@ -108,8 +94,23 @@ VisualReact.ReactiveProcessor = Class.extend({
                                 conn.getSource().getParent(),
                                 conn.getTarget().getParent());
                         }
+                        this.removeNode(id);
                     }
                     break;
+                //case draw2d.Configuration.i18n.command.connectPorts:
+                //    var id = guid();
+                //    try {
+                //        this.reactiveGraph.addEdge(
+                //            id,
+                //            event.getCommand().getSource().getParent().getId(),
+                //            event.getCommand().getTarget().getParent().getId());
+                //        this.reactiveGraph.getTopologicalSort();
+                //    }
+                //    catch (e) {
+                //        this.reactiveGraph.removeEdge(id);
+                //        event.getCommand().cancel();
+                //    }
+                //    this.reactiveGraph.removeEdge(id);
             }
         }
     },
@@ -131,7 +132,29 @@ VisualReact.ReactiveProcessor = Class.extend({
         }
     },
 
-    connect: function (source, target, connectionId) {
+    removeNode: function (figureId) {
+        this.reactiveNodes.remove(figureId);
+        this.inputNodes.remove(figureId);
+        this.reactiveGraph.removeNode(figureId);
+    },
+
+    connectNodes: function (connectionId, source, target) {
+        // First try to add the connection to the graph. This will rule out
+        // possible cycles which are prohibited.
+        this.reactiveGraph.addEdge(
+            connectionId,
+            source.getId(),
+            target.getId());
+        try {
+            console.log(this.reactiveGraph.getTopologicalSort());
+        }
+        catch (e) {
+            // Normally this should not happen since the check for cycles
+            // is done during the drag event.
+            console.log(e.message);
+        }
+        //pause(false);
+        //this.createCode();
         var sourceControl = this.reactiveNodes.get(source.getId());
         var targetControl = this.reactiveNodes.get(target.getId());
         var s = new Subscription(connectionId, sourceControl, targetControl);
@@ -145,9 +168,11 @@ VisualReact.ReactiveProcessor = Class.extend({
     },
 
     disconnect: function (connectionId) {
+        var subscription = this.connections.get(connectionId);
+        this.reactiveGraph.removeEdge(
+            subscription.getId());
         //var sourceControl = this.reactiveNodes.get(source.getId());
         //var targetControl = this.reactiveNodes.get(target.getId());
-        var subscription = this.connections.get(connectionId);
         //var subscription = sourceControl.removeSubscription(target.getId());
         // Remove the subscription and make sure all relevant data gets freed.
         subscription.remove();
@@ -204,10 +229,10 @@ VisualReact.ReactiveProcessor = Class.extend({
         page += "</script>";
         page += "</BODY> </HTML>";
         jQuery('#reactive-html-code').text(script);
-        console.log(page);
+        //console.log(page);
         return page;
     },
-    
+
     // Send the pause or resume command to the streams.
     pause: function (p) {
         //this.pauser.onNext(p);
@@ -215,13 +240,16 @@ VisualReact.ReactiveProcessor = Class.extend({
         // Better would be to pause the streams from input nodes to
         // other nodes, this way it is possible to rerun the events
         // without them being dropped by the other subscriptions.
-        var l = this.inputNodes.values();
-        for (var i = 0; i < l.length; i++) {
-            var subscriptions = l[i].getSubscriptions();
-            for (var j = 0; j < subscriptions.length; j++) {
-                subscriptions[i].pause(p);
-            }
-        }
+        //var l = this.inputNodes.values();
+        //for (var i = 0; i < l.length; i++) {
+        //    var subscriptions = l[i].getSubscriptions();
+        //    for (var j = 0; j < subscriptions.length; j++) {
+        //        subscriptions[i].pause(p);
+        //    }
+        //}
+        console.log("Pauser: " + !p);
+        this.isPaused = p;
+        //this.pauser.onNext(!p);
     },
 
     goToEvent: function (eventCounter) {

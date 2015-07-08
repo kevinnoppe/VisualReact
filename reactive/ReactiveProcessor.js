@@ -28,24 +28,6 @@ VisualReact.ReactiveProcessor = Class.extend({
 
     },
 
-    /**
-     * Store a new input, every event emitted by an input node is stored
-     * as an input event that can be replayed if necessary.
-     */
-    newInput: function (sourceId, timestamp, event) {
-        // Check if the source is an input node, currently we only
-        // want to catch these.
-        var source = this.reactiveNodes.get(sourceId);
-        if (source instanceof FromEventNode) {
-            this.inputs.push({
-                source: sourceId,
-                time: timestamp,
-                event: event
-            });
-            jQuery('#sldTimeline').prop('max', this.inputs.length);
-        }
-    },
-
     // Try to inject the reactivity in the blocks after creation.
     stackChanged: function (event) {
         // Only catch events that have occurred, meaning we don't use the 
@@ -54,63 +36,38 @@ VisualReact.ReactiveProcessor = Class.extend({
         if (event.getDetails() === draw2d.command.CommandStack.POST_EXECUTE) {
             switch (event.getCommand().getLabel()) {
                 case draw2d.Configuration.i18n.command.addShape:
-                    this.createNode(event.getCommand().getFigure());
+                    console.log("Create node");
+                    this.createNode(
+                        event.getCommand().getFigure());
                     break;
                 case draw2d.Configuration.i18n.command.connectPorts:
                     if (event.getCommand() instanceof draw2d.command.CommandConnect) {
+                        console.log("Create connection");
                         this.connectNodes(
                             event.getCommand().getConnection().getId(),
                             event.getCommand().getSource().getParent(),
                             event.getCommand().getTarget().getParent());
                     }
                     break;
-                case draw2d.Configuration.i18n.command.deleteShape:
-                    //if (event.getCommand().figure instanceof draw2d.Connection) {
-                    //    event.getCommand().figure.targetPort.parent.removeReactiveInput();
-                    //}
-                    break;
-                default:
-                    //alert(event.getCommand());
-                    break;
             }
-        } else if (event.getDetails() === draw2d.command.CommandStack.PRE_EXECUTE) {
+        }
+            // Execute the administration functions for deleting before the
+            // actual objects are deleted.
+        else if (event.getDetails() === draw2d.command.CommandStack.PRE_EXECUTE) {
             switch (event.getCommand().getLabel()) {
                 case draw2d.Configuration.i18n.command.deleteShape:
                     if (event.getCommand().figure instanceof draw2d.Connection) {
                         var connection = event.getCommand().figure;
-                        console.log("Removing connection");
-                        this.disconnect(
-                            connection.getId());
-                        //connection.getSource().getParent(),
-                        //connection.getTarget().getParent());
+                        console.log("Remove connection");
+                        this.disconnectNodes(connection.getId());
                     } else {
-                        var connections = event.getCommand().figure.getConnections()
-                        var id = event.getCommand().figure.getId();
-                        console.log("Removing figure");
-                        event.getCommand().figure.remove();
-                        for (c = 0; c < connections.getSize() ; c++) {
-                            var conn = connections.get(c);
-                            this.disconnect(
-                                conn.getSource().getParent(),
-                                conn.getTarget().getParent());
-                        }
-                        this.removeNode(id);
+                        // We assume that deletions that are not connections
+                        // are figures.
+                        console.log("Remove node");
+                        this.removeNode(
+                            event.getCommand().getFigure().getId());
                     }
                     break;
-                //case draw2d.Configuration.i18n.command.connectPorts:
-                //    var id = guid();
-                //    try {
-                //        this.reactiveGraph.addEdge(
-                //            id,
-                //            event.getCommand().getSource().getParent().getId(),
-                //            event.getCommand().getTarget().getParent().getId());
-                //        this.reactiveGraph.getTopologicalSort();
-                //    }
-                //    catch (e) {
-                //        this.reactiveGraph.removeEdge(id);
-                //        event.getCommand().cancel();
-                //    }
-                //    this.reactiveGraph.removeEdge(id);
             }
         }
     },
@@ -118,13 +75,9 @@ VisualReact.ReactiveProcessor = Class.extend({
     createNode: function (figure) {
         // The draw2d node is stored and used as the view.
         // A model is made that represents the reactive counterpart.
+        // The controlNode is the abstract representation that takes care
+        // of all administration.
         var control = figure.getControlNode();
-        //var model = control.getModel();
-        // The id is stored separately for easy retrieval.
-        //var newNode = new node(
-        //    figure,
-        //    control,
-        //    model);
         // Add the new node to the internal collection of reactive nodes.
         this.reactiveNodes.add(figure.getId(), control);
         if (figure instanceof draw2d.shape.frp.Input) {
@@ -133,6 +86,20 @@ VisualReact.ReactiveProcessor = Class.extend({
     },
 
     removeNode: function (figureId) {
+        // When a node is removed, all its connections should be removed
+        // as well.
+        var connectionList = connections.values();
+        for (var i = 0; i < connectionList.getSize() ; i++) {
+            var connection = connectionList[i];
+            // Delete all connections that start or end at this node.
+            if (connection.getSource().getId() === figureId ||
+                connection.getTarget().getId() === figureId) {
+                this.disconnect(connection.getId());
+            }
+        }
+        // Send the remove command to the node
+        this.reactiveNodes.get(figureId).remove();
+        // Remove the node from the internal lists.
         this.reactiveNodes.remove(figureId);
         this.inputNodes.remove(figureId);
         this.reactiveGraph.removeNode(figureId);
@@ -153,31 +120,36 @@ VisualReact.ReactiveProcessor = Class.extend({
             // is done during the drag event.
             console.log(e.message);
         }
-        //pause(false);
-        //this.createCode();
         var sourceControl = this.reactiveNodes.get(source.getId());
         var targetControl = this.reactiveNodes.get(target.getId());
         var s = new Subscription(connectionId, sourceControl, targetControl);
-        this.connections.add(connectionId, s)
-
-        //sourceControl.subscribe(targetControl); //NODIG?
-        //var sourceId = source.getId();
-        //var targetId = target.getId();
-        //var output = source.getReactiveOutput(targetId, target);
-        //target.setReactiveInput(sourceId, output, this.pauser);
+        this.connections.add(connectionId, s);
     },
 
-    disconnect: function (connectionId) {
+    disconnectNodes: function (connectionId) {
         var subscription = this.connections.get(connectionId);
         this.reactiveGraph.removeEdge(
             subscription.getId());
-        //var sourceControl = this.reactiveNodes.get(source.getId());
-        //var targetControl = this.reactiveNodes.get(target.getId());
-        //var subscription = sourceControl.removeSubscription(target.getId());
-        // Remove the subscription and make sure all relevant data gets freed.
         subscription.remove();
-        //source.removeReactiveSubscriber(targetId);
-        //target.removeReactiveInput(sourceId);
+        this.connections.remove(connectionId);
+    },
+
+    /**
+     * Store a new input, every event emitted by an input node is stored
+     * as an input event that can be replayed if necessary.
+     */
+    newInput: function (sourceId, timestamp, event) {
+        // Check if the source is an input node, currently we only
+        // want to catch these.
+        var source = this.reactiveNodes.get(sourceId);
+        if (source instanceof FromEventNode) {
+            this.inputs.push({
+                source: sourceId,
+                time: timestamp,
+                event: event
+            });
+            jQuery('#sldTimeline').prop('max', this.inputs.length);
+        }
     },
 
     createCode: function () {
@@ -235,21 +207,16 @@ VisualReact.ReactiveProcessor = Class.extend({
 
     // Send the pause or resume command to the streams.
     pause: function (p) {
-        //this.pauser.onNext(p);
         // Pause all streams in between the nodes
         // Better would be to pause the streams from input nodes to
         // other nodes, this way it is possible to rerun the events
         // without them being dropped by the other subscriptions.
-        //var l = this.inputNodes.values();
-        //for (var i = 0; i < l.length; i++) {
-        //    var subscriptions = l[i].getSubscriptions();
-        //    for (var j = 0; j < subscriptions.length; j++) {
-        //        subscriptions[i].pause(p);
-        //    }
-        //}
         console.log("Pauser: " + !p);
         this.isPaused = p;
-        //this.pauser.onNext(!p);
+        var l = this.inputNodes.values();
+        for (var i = 0; i < l.length; i++) {
+            l[i].pause(p);
+        }
     },
 
     goToEvent: function (eventCounter) {

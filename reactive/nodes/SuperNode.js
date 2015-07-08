@@ -136,3 +136,10 @@ SuperNode.prototype.emitEvent = function (event) {
 SuperNode.prototype.getCode = function (varName) {
     return this.getModel().getCode(varName);
 };
+
+SuperNode.prototype.pause = function (pause) {
+    var subs = this.getSubscriptions();
+    for (var i = 0; i < subs.length; i++) {
+        subs[i].pause(pause);
+    }
+};

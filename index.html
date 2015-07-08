@@ -92,6 +92,7 @@
     <script src="./draw2d/src/policy/EditPolicy.js"> </script>
     <script src="./draw2d/src/policy/canvas/CanvasPolicy.js"> </script>
     <script src="./draw2d/src/policy/canvas/ConnectionInterceptorPolicy.js"> </script>
+    <script src="./draw2d/src/policy/canvas/CycleConnectionInterceptorPolicy.js"> </script>
     <script src="./draw2d/src/policy/canvas/KeyboardPolicy.js"> </script>
     <script src="./draw2d/src/policy/canvas/DefaultKeyboardPolicy.js"> </script>
     <script src="./draw2d/src/policy/canvas/MouseClickPolicy.js"> </script>
@@ -495,7 +496,7 @@
     <script src="./reactive/streams/Subscription.js"></script>
 
     <script src="./reactive/RxJS.js"></script>
-    <script src="./lib/graph/reactiveGraph.js"></script>
+    <script src="./lib/graph/ReactiveGraph.js"></script>
 
     <script src="./lib/rx.all.compat.js"></script>
 
@@ -506,11 +507,9 @@
 
             this.app = new VisualReact.Application();
 
-            // Overwrite the default way of creating connections
+            // Overwrite the default way of creating connections.
             draw2d.Connection.createConnection = function (sourcePort, targetPort) {
                 return app.createConnection(sourcePort, targetPort);
-
-
             };
         });
 
@@ -555,17 +554,10 @@
             jQuery('#sldTimeline').prop('disabled', !paused);
             jQuery('#btnPause').prop('value', text);
         }
-        //var sliderChanges = Rx.Observable.fromEvent(jQuery('#sldTimeline'), 'change');
-        //sliderChanges.subscribe(function (event) {
-        //    reactiveProcessor.goToEvent(event.target.value);
-        //});
+
         var gogo = function (val) {
             reactiveProcessor.goToEvent(val);
         }
-        //var sliderSlides = Rx.Observable.fromEvent(jQuery('#sldTimeline'), 'input');
-        //sliderSlides.subscribe(function (input) {
-        //    console.log("Sliding to " + input.target.value.toString());
-        //});
     </script>
 </body>
 

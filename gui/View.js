@@ -11,6 +11,9 @@ VisualReact.View = draw2d.Canvas.extend({
 		
 		this.currentDropConnection = null;
 
+		this.cycleConnectionPolicy = new draw2d.policy.canvas.CycleConnectionInterceptorPolicy();
+		this.installEditPolicy(this.cycleConnectionPolicy);
+
 		//this.clickPolicy = new draw2d.policy.canvas.MouseClickPolicy();
 		//this.installEditPolicy(this.clickPolicy);
 	},

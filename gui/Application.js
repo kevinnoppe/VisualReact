@@ -24,7 +24,7 @@ VisualReact.Application = Class.extend(
 
         // We link the application with the language we want
         reactiveLanguage = new RxJS();
-        variableName = new VariableNames();
+        //variableName = new VariableNames();
 
         this.defaultRouterClassName = "draw2d.layout.connection.DirectRouter";
         this.defaultRouter = new draw2d.layout.connection.DirectRouter();

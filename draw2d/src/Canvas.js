@@ -500,8 +500,14 @@ draw2d.Canvas = Class.extend(
                 return stay;
             });
         }
-        else if( policy instanceof draw2d.policy.canvas.ConnectionInterceptorPolicy){
-            // think about if I allow to install move than one
+        else if (policy instanceof draw2d.policy.canvas.ConnectionInterceptorPolicy){
+            this.editPolicy.grep(function (p) {
+                var stay = !(p instanceof draw2d.policy.canvas.ConnectionInterceptorPolicy);
+                if (stay === false) {
+                    p.onUninstall(_this);
+                }
+                return stay;
+            });
         }
         
         policy.onInstall(this);

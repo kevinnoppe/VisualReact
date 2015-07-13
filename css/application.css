@@ -22,10 +22,27 @@ input {
     margin: 0px;
 }
 
+#canvasContainer {
+    background-color:chartreuse;
+}
+
 #canvas {
     padding: 0px;
     margin: 0px;
     background-color: #FAFAFA;
+}
+
+#canvasMask {
+    position: absolute;
+    padding: 0px;
+    margin: 0px;
+    top: 50px; /*Hard-coded height of the toolbar because of the jquery-layout*/
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    z-index: 10000;
+    background-color: #000;
 }
 
 #navigation {

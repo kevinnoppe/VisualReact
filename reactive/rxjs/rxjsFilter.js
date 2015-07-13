@@ -26,7 +26,7 @@ rxjsFilter.prototype.getExecution = function (inputs, filterFunction) {
         });
         return this.output;
     }
-    return Rx.Observable.empty();
+    return Rx.Observable.never();
 };
 
 rxjsFilter.prototype.getFunctionCall = function () {

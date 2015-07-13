@@ -84,8 +84,7 @@ rxjsFunction.prototype.getCode = function (varName) {
 rxjsFunction.prototype.getVariableName = function () {
     return this.variableName;
 };
-
-// Get the 
+ 
 rxjsFunction.prototype.getInputModels = function () {
     var inputs = this.getControlNode().getInputs();
     // The is a list of subscriptions so we get the subscriber of each
@@ -95,4 +94,7 @@ rxjsFunction.prototype.getInputModels = function () {
         models[i] = inputs[i].getSource().getModel();
     }
     return models;
+};
+
+rxjsFunction.prototype.remove = function () {
 };

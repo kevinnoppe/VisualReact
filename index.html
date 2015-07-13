@@ -460,7 +460,6 @@
     <script src="./lib/jquery-ui-1.8.23.custom.min.js"></script>
     <script src="./lib/jquery.layout.js"></script>
     <script src="./lib/Guid.js"></script>
-    <script src="./lib/VariableNames.js"></script>
     <script src="./lib/Dictionary.js"></script>
 
     <script src="./gui/Application.js"></script>
@@ -520,11 +519,17 @@
         <div id="toolbar">
             <!--< style="float:right" id="pClock"> Clock? </p>-->
             <div style="float:right" id="pauser">
-                <input type="range" id="sldTimeline" disabled min="0" max="0" onchange="gogo(this.value)" />
+                <input type="range" id="sldTimeline" disabled min="0" max="0" value="0" onchange="newSliderValue(this.value)" />
                 <input type="button" id="btnPause" title="Pause" onclick="pause();" value="Pause" />
+                <input type="button" id="btnStep" title="Step" value="Step" disabled />
             </div>
         </div>
-        <div id="canvas" class="" style="width:1500px; height:1500px;-webkit-tap-highlight-color: rgba(0,0,0,0); "></div>
+
+        <div id="canvasMask" class=""></div>
+        <div id="canvas" class="" style="width:1500px; height:1500px; 
+            -webkit-tap-highlight-color: rgba(0,0,0,0);" >
+        </div>
+
     </div>
 
     <div id="navigation" class="">
@@ -551,11 +556,14 @@
             paused = (p === undefined) ? !paused : p;
             reactiveProcessor.pause(paused);
             var text = (paused) ? "Unpause" : "Pause";
-            jQuery('#sldTimeline').prop('disabled', !paused);
+            var slider = jQuery('#sldTimeline');
+            slider.prop('disabled', !paused);
+            //var val = slider.prop('max');
+            //slider.prop('value', val);
             jQuery('#btnPause').prop('value', text);
         }
 
-        var gogo = function (val) {
+        var newSliderValue = function (val) {
             reactiveProcessor.goToEvent(val);
         }
     </script>

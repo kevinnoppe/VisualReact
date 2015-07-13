@@ -29,7 +29,7 @@ rxjsMap.prototype.getExecution = function (inputs, mapFunction) {
         });
         return this.output;
     }
-    return Rx.Observable.empty();
+    return Rx.Observable.never();
 };
 
 rxjsMap.prototype.getFunctionCall = function () {

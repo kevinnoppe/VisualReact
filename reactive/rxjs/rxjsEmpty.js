@@ -2,14 +2,14 @@
 
     rxjsFunction.call(this, figure);
 
-    this.functionCall = "Rx.Observable.Empty()";
+    this.functionCall = "Rx.Observable.empty()";
 };
 
 rxjsEmpty.prototype = Object.create(rxjsFunction.prototype);
 rxjsEmpty.prototype.constructor = rxjsEmpty;
 
 rxjsEmpty.prototype.getExectution = function () {
-    return Rx.Observable.Empty();
+    return Rx.Observable.empty();
 };
 
 rxjsEmpty.prototype.getOutput = function () {

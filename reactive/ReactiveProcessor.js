@@ -26,6 +26,9 @@ VisualReact.ReactiveProcessor = Class.extend({
         this.inputNodes = new Dictionary();
         this.connections = new Dictionary();
 
+        this.returnedStep = -1;
+        this.stepQueue = [];
+        jQuery('#btnStep').on('click', this.executeStep);
     },
 
     // Try to inject the reactivity in the blocks after creation.
@@ -65,7 +68,7 @@ VisualReact.ReactiveProcessor = Class.extend({
                         // are figures.
                         console.log("Remove node");
                         this.removeNode(
-                            event.getCommand().getFigure().getId());
+                            event.getCommand().figure.getId());
                     }
                     break;
             }
@@ -88,13 +91,13 @@ VisualReact.ReactiveProcessor = Class.extend({
     removeNode: function (figureId) {
         // When a node is removed, all its connections should be removed
         // as well.
-        var connectionList = connections.values();
-        for (var i = 0; i < connectionList.getSize() ; i++) {
+        var connectionList = this.connections.values();
+        for (var i = 0; i < connectionList.length ; i++) {
             var connection = connectionList[i];
             // Delete all connections that start or end at this node.
             if (connection.getSource().getId() === figureId ||
-                connection.getTarget().getId() === figureId) {
-                this.disconnect(connection.getId());
+                connection.getSubscriber().getId() === figureId) {
+                this.disconnectNodes(connection.getId());
             }
         }
         // Send the remove command to the node
@@ -132,24 +135,6 @@ VisualReact.ReactiveProcessor = Class.extend({
             subscription.getId());
         subscription.remove();
         this.connections.remove(connectionId);
-    },
-
-    /**
-     * Store a new input, every event emitted by an input node is stored
-     * as an input event that can be replayed if necessary.
-     */
-    newInput: function (sourceId, timestamp, event) {
-        // Check if the source is an input node, currently we only
-        // want to catch these.
-        var source = this.reactiveNodes.get(sourceId);
-        if (source instanceof FromEventNode) {
-            this.inputs.push({
-                source: sourceId,
-                time: timestamp,
-                event: event
-            });
-            jQuery('#sldTimeline').prop('max', this.inputs.length);
-        }
     },
 
     createCode: function () {
@@ -205,25 +190,92 @@ VisualReact.ReactiveProcessor = Class.extend({
         return page;
     },
 
+    /**
+     * Store a new input, every event emitted by an input node is stored
+     * as an input event that can be replayed if necessary.
+     */
+    newInput: function (sourceId, timestamp, event) {
+        // Check if the source is an input node, currently we only
+        // want to catch these.
+        var source = this.reactiveNodes.get(sourceId);
+        // If we had returned to some step, it should now be cleared because
+        // new events have been sent.
+        if (!this.isPaused && this.returnedStep >= 0) {
+            this.inputs.splice(this.returnedStep, Number.MAX_VALUE);
+            jQuery('#sldTimeline').prop('max', this.returnedStep);
+            jQuery('#sldTimeline').prop('value', this.returnedStep);
+            this.returnedStep = -1;
+        }
+        if (source instanceof FromEventNode) {
+            this.inputs.push({
+                source: sourceId,
+                time: timestamp,
+                event: event
+            });
+            jQuery('#sldTimeline').prop('max', this.inputs.length);
+            jQuery('#sldTimeline').prop('value', this.inputs.length);
+        }
+    },
+
     // Send the pause or resume command to the streams.
     pause: function (p) {
         // Pause all streams in between the nodes
         // Better would be to pause the streams from input nodes to
         // other nodes, this way it is possible to rerun the events
         // without them being dropped by the other subscriptions.
-        console.log("Pauser: " + !p);
+        //console.log("Pauser: " + !p);
         this.isPaused = p;
-        var l = this.inputNodes.values();
+        var l = this.reactiveNodes.values();
         for (var i = 0; i < l.length; i++) {
-            l[i].pause(p);
+            l[i].pause(this.isPaused);
         }
+        this.showMask(this.isPaused);
     },
 
     goToEvent: function (eventCounter) {
+        // Going to a certain point in time, we temporarily store the
+        // value for maintaining the slider.
+        this.returnedStep = eventCounter;
         for (var i = 0; i < eventCounter; i++) {
             var currentInput = this.inputs[i];
             var source = this.reactiveNodes.get(currentInput.source);
             source.emitEvent(currentInput.event);
+        }
+    },
+
+    //waitForStep: function (callback) {
+    //    var $btn = jQuery('#btnStep');
+    //    var clickFunction = function () {
+    //        $btn.off();
+    //        $btn.prop('disabled', true);
+    //        //console.log("OnClick removed")
+    //        callback();
+    //    }
+
+    //    var clickListener = $btn.on("click", clickFunction);
+    //    $btn.prop('disabled', false);
+    //},
+
+    // Enqueue the step in the list
+    waitForStep: function (callback) {
+        this.stepQueue.push(callback);
+        jQuery('#btnStep').prop('disabled', false);
+    },
+
+    // Execute the first step in the queue.
+    executeStep: function () {
+        var callback = reactiveProcessor.stepQueue.shift();
+        if (reactiveProcessor.stepQueue.length === 0) {
+            jQuery('#btnStep').prop('disabled', true);
+        }
+        callback();
+    },
+
+    showMask: function (p) {
+        if (p) {
+            jQuery("#canvasMask").fadeTo(500, 0.25);
+        } else {
+            jQuery("#canvasMask").fadeOut(500);
         }
     }
 });

@@ -4,6 +4,7 @@
 
     //this.reactiveFunction = Rx.Observable.prototype.map;
     this.functionCall = "map";
+    this.currentSubscription = null;
 };
 
 rxjsScan.prototype = Object.create(rxjsFunction.prototype);
@@ -17,17 +18,18 @@ rxjsScan.prototype.getExecution = function (inputs, accumulator, scanFunction) {
     var scanFunction = scanFunction || this.getControlNode().getActionFunction();
     if (inputs.length === 1) {
         var input = inputs[0].getOutput();
+        this.currentSubscription && this.currentSubscription.dispose();
         // When there is an original accumulator, add it as an argument.
         var args = accumulator ? [accumulator, scanFunction] : [scanFunction];
         this.output = Rx.Observable.prototype.scan.apply(
             input,
             args).share();
-        this.output.subscribe(function (event) {
+        this.currentSubscription = this.output.subscribe(function (event) {
             console.log("After scan: " + event.toString());
         });
         return this.output;
     }
-    return Rx.Observable.empty();
+    return Rx.Observable.never();
 };
 
 rxjsScan.prototype.getFunctionCall = function () {

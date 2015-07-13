@@ -24,7 +24,7 @@ rxjsFlatMap.prototype.getExecution = function (inputs, mapFunction) {
         });
         return this.output;
     }
-    return Rx.Observable.empty();
+    return Rx.Observable.never();
 };
 
 rxjsFlatMap.prototype.getFunctionCall = function () {

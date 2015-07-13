@@ -4,6 +4,7 @@
 
     //this.reactiveFunction = Rx.Observable.zip;
     this.functionCall = "zip";
+    this.currentSubscription = null;
 };
 
 rxjsZip.prototype = Object.create(rxjsFunction.prototype);
@@ -17,6 +18,7 @@ rxjsZip.prototype.getExecution = function (inputs, zipFunction) {
     if (inputs.length > 0) {
         // First create the list of actual inputs
         var inputList = [];
+        this.currentSubscription && this.currentSubscription.dispose();
         for (i = 0; i < inputs.length; i++) {
             inputList.push(inputs[i].getOutput());
         }
@@ -27,15 +29,12 @@ rxjsZip.prototype.getExecution = function (inputs, zipFunction) {
         this.output = Rx.Observable.prototype.zip.apply(
             inputList.shift(),
             inputList).share();
-        if (this.internalSubscription !== undefined) {
-            this.internalSubscription.dispose();
-        }
-        this.internalSubscription = this.output.subscribe(function (event) {
+        this.currentSubscription = this.output.subscribe(function (event) {
             console.log("After zip: " + event.toString());
         });
         return this.output;
     }
-    return Rx.Observable.Empty();
+    return Rx.Observable.never();
 };
 
 rxjsZip.prototype.getFunctionCall = function () {

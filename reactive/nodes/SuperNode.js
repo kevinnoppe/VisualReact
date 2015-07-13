@@ -101,6 +101,10 @@ SuperNode.prototype.getModel = function () {
     return this._model;
 };
 
+SuperNode.prototype.getView = function () {
+    return this._view;
+}
+
 // Get the output of this reactive node. 
 SuperNode.prototype.getOutput = function () {
     return this.getModel().getOutput();
@@ -142,4 +146,11 @@ SuperNode.prototype.pause = function (pause) {
     for (var i = 0; i < subs.length; i++) {
         subs[i].pause(pause);
     }
+};
+
+SuperNode.prototype.remove = function () {
+    // Send the remove command to the different parts for cleanup.
+    this.getModel().remove();
+    this.getView().remove();
+    // Remove things if necessary
 };
